@@ -6,7 +6,7 @@ public class Deck{
     private static ArrayList<Card> cards = new ArrayList<Card>();
     private static Random r = new Random();
     
-    String[] values = {"Ace","2","3","4","5","6","7","8","9","10","Jack","Queen","King"};
+    Integer[] values = {1,2,3,4,5,6,7,8,9,10,11,12,13};
     String[] suit = {"Club", "Spade", "Diamond", "Heart"};
 
     public Deck(){
@@ -17,8 +17,9 @@ public class Deck{
             }
         }
         Collections.shuffle(cards);
-    }
 
+    }
+    
     public ArrayList<Card> getDeck(){
         return cards;
     }
@@ -59,15 +60,11 @@ public class Deck{
     
     public static void handValues(ArrayList<Integer> valueOutput, ArrayList<Card> handInput){
         for(Card c : handInput){
-            String cardType = c.getValue() + c.getSuit();
-            if(cardType.contains("10") || cardType.contains("Jack") || cardType.contains("Queen") || cardType.contains("King")){
+            int cardValue = c.getValue();
+            if(cardValue >= 10){
                 valueOutput.add(10);
             }
-            else if(cardType.contains("Ace")){
-                valueOutput.add(1);
-            }
             else{
-                int cardValue = Integer.parseInt(cardType.substring(0, 1));
                 valueOutput.add(cardValue);
             }
         }
@@ -75,26 +72,8 @@ public class Deck{
     
     public static void handValuesForRuns(ArrayList<Integer> valueOutput, ArrayList<Card> handInput){
         for(Card c : handInput){
-            String cardType = c.getValue() + c.getSuit();
-            if(cardType.contains("10")){
-                valueOutput.add(10);
-            }
-            else if(cardType.contains("Jack")){
-                valueOutput.add(11);
-            }
-            else if(cardType.contains("Queen")){
-                valueOutput.add(12);
-            }
-            else if(cardType.contains("King")){
-                valueOutput.add(13);
-            }
-            else if(cardType.contains("Ace")){
-                valueOutput.add(1);
-            }
-            else{
-                int cardValue = Integer.parseInt(cardType.substring(0, 1));
-                valueOutput.add(cardValue);
-            }
+            int cardValue = c.getValue();
+            valueOutput.add(cardValue);
         }
     }
 
