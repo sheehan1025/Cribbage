@@ -1,8 +1,8 @@
 public class Card {
     private String suit;
-    private String value;
+    private int value;
     
-    public Card(String suit, String value){
+    public Card(String suit, int value){
         this.suit = suit;
         this.value = value;
     }
@@ -13,15 +13,31 @@ public class Card {
     public void setSuit(String suit){
         this.suit = suit;
     }
-    public String getValue(){
+    public int getValue(){
         return value;
     }
-    public void setValue(String value){
+    public void setValue(int value){
         this.value = value;
     }
 
     public String toString(){
-        return value + " of "+ suit + "s";
+        String newVal = "";
+        if(value == 1){
+            newVal = "Ace";
+        }
+        else if(value == 11){
+            newVal = "Jack";
+        }
+        else if(value == 12){
+            newVal = "Queen";
+        }
+        else if(value == 13){
+            newVal = "King";
+        }
+        if(newVal == ""){
+            return value + " of "+ suit + "s";
+        }
+        return newVal + " of "+ suit + "s";
     }
 }
 
