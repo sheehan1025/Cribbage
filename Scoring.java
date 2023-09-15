@@ -6,7 +6,7 @@ public class Scoring{
     private ArrayList<Card> sortedHand = new ArrayList<Card> ();
 
     public Scoring(){
-        
+
     }
 
     public Scoring(ArrayList<Card> hand){
@@ -31,8 +31,8 @@ public class Scoring{
     public int pairs(ArrayList<Card> a){
         int score = 0;
         HashMap<Integer, Integer> map = new HashMap<>();
-        for(int i = 0; i < a.size(); i++ ) {
-            map.put(a.get(i).getValue(), map.getOrDefault(a.get(i).getValue(), 0) + 1);
+        for(Card c : a){
+            map.put(c.getValue(), map.getOrDefault(c.getValue(), 0) + 1);
         }
         int count = 0;
         for (int freq : map.values()) {
@@ -149,29 +149,18 @@ public class Scoring{
         }
     }
     
-    public static int flush(ArrayList<Card> a){
-        ArrayList<String> suits = new ArrayList<String>(5);
-        int flushScore = 1;
+    public int flush(ArrayList<Card> a){
+        HashMap<String, Integer> map = new HashMap<>();
+        int flushScore = 0;
         for(Card c : a){
-            suits.add(c.getSuit());
+            map.put(c.getSuit(), map.getOrDefault(c.getSuit(), 0) + 1);
         }
-        Collections.sort(suits);
-        String suitType = suits.get(0);
-        for(int i = 1; i < suits.size(); i++){
-            if(suitType == suits.get(i)){
-                flushScore = flushScore + 1;
-            }
-            else{
-                suitType = suits.get(i);
-                flushScore = 1;
+        for (int freq : map.values()) {
+            if(freq >= 4){
+                flushScore = freq;
             }
         }
-        if(flushScore == 4 || flushScore == 5){
-            return flushScore;
-        }
-        else{
-            return 0;
-        }
+        return flushScore;
     }
     
     public static int runs(ArrayList<Integer> num){
