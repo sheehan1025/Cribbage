@@ -1,18 +1,44 @@
 import java.util.*;
+
+
 public class Scoring{
-    public static int pairs(ArrayList<Card> a){
-        int score = 0;
-        for(int i = 0; i < a.size() - 1; i++){
-            Card c = a.get(i);
-            String value = c.getValue();
-            for(int j = i + 1; j < a.size(); j++){
-                Card c2 = a.get(j);
-                String value2 = c2.getValue();
-                if(value == value2){
-                    score = score + 2;
-                }
+
+    private ArrayList<Card> sortedHand = new ArrayList<Card> ();
+
+    public Scoring(){
+        
+    }
+
+    public Scoring(ArrayList<Card> hand){
+        this.sortedHand = hand;
+        sortHand(this.sortedHand);
+    }
+
+    void sortHand(ArrayList<Card> hand){
+        int n = hand.size();
+        for (int i = 1; i < n; ++i) {
+            int key = hand.get(i).getValue();
+            Card cardKey = hand.get(i);
+            int j = i - 1;
+            while (j >= 0 && hand.get(j).getValue() > key) {
+                hand.set(j + 1, hand.get(j));
+                j = j - 1;
             }
+            hand.set(j + 1, cardKey);
         }
+    }
+
+    public int pairs(ArrayList<Card> a){
+        int score = 0;
+        HashMap<Integer, Integer> map = new HashMap<>();
+        for(int i = 0; i < a.size(); i++ ) {
+            map.put(a.get(i).getValue(), map.getOrDefault(a.get(i).getValue(), 0) + 1);
+        }
+        int count = 0;
+        for (int freq : map.values()) {
+            count += freq * (freq - 1) / 2;
+        }
+        score = score +  2 * count;
         return score;
     }
     
@@ -217,7 +243,7 @@ public class Scoring{
     }
     
     public static int nibs(Card c){
-        String jackCheck = c.getValue();
+        int jackCheck = c.getValue();
         if(jackCheck.contains("Jack")){
             return 2;
         }
