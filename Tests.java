@@ -41,12 +41,47 @@ public class Tests {
             fourFlush.add(new Card("Spade", i));
         }
         fourFlush.add(new Card("Club", 2));
-        fourFlush.add(new Card("Heart", 3));
         assertEquals(4, score.flush(fourFlush));
 
         ArrayList<Card> fiveFlush = fourFlush;
-        fiveFlush.add(new Card("Spade", 6));
-        fiveFlush.remove(5);
+        fiveFlush.set(4, new Card("Spade", 6));
         assertEquals(5, score.flush(fiveFlush));
+
+        ArrayList<Card> noFlush = new ArrayList<Card>();
+        noFlush.add(new Card("Spade", 1));
+        noFlush.add(new Card("Diamond", 1));
+        noFlush.add(new Card("Heart", 1));
+        noFlush.add(new Card("Club", 1));
+        noFlush.add(new Card("Club", 2));
+        assertEquals(0, score.flush(noFlush));
+
     }
+
+    @Test
+    public void fifteensTest(){
+        ArrayList<Card> maxFifteens = new ArrayList<Card>();
+        maxFifteens.add(new Card("Spade", 5));
+        maxFifteens.add(new Card("Diamond", 5));
+        maxFifteens.add(new Card("Heart", 5));
+        maxFifteens.add(new Card("Club", 5));
+        maxFifteens.add(new Card("Club", 10));
+        assertEquals(16, score.fifteens(maxFifteens));
+
+        ArrayList<Card> noFifteens = new ArrayList<Card>();
+        noFifteens.add(new Card("Spade", 1));
+        noFifteens.add(new Card("Diamond", 3));
+        noFifteens.add(new Card("Heart", 10));
+        noFifteens.add(new Card("Club", 10));
+        noFifteens.add(new Card("Club", 8));
+        assertEquals(0, score.fifteens(noFifteens));
+
+        ArrayList<Card> midFifteens = new ArrayList<Card>();
+        midFifteens.add(new Card("Spade", 6));
+        midFifteens.add(new Card("Diamond", 6));
+        midFifteens.add(new Card("Heart", 6));
+        midFifteens.add(new Card("Club", 5));
+        midFifteens.add(new Card("Club", 9));
+        assertEquals(6, score.fifteens(midFifteens));
+    }
+
 }

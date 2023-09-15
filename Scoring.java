@@ -14,7 +14,7 @@ public class Scoring{
         sortHand(this.sortedHand);
     }
 
-    void sortHand(ArrayList<Card> hand){
+    private void sortHand(ArrayList<Card> hand){
         int n = hand.size();
         for (int i = 1; i < n; ++i) {
             int key = hand.get(i).getValue();
@@ -42,112 +42,37 @@ public class Scoring{
         return score;
     }
     
-    public static int fifteens(ArrayList<Integer> num){
-        int score = 0;
-        Collections.sort(num);
-        score = score + fifteens(num, 0, 0, 1);
-        return score;
+    public int fifteens(ArrayList<Card> arr){
+        List<List<Integer>> fifteenList = fifteens(arr, 15);
+        System.out.println(fifteenList);
+        return fifteenList.size() * 2;
     }
-    
-    private static int fifteens(ArrayList<Integer> a, int sum, int first, int second){
-        if(first == a.size() - 1 && second == a.size()){
-            return fifteens(a, 0, 0, 1, 2);
+
+    private List<List<Integer>> fifteens(ArrayList<Card> arr, int sum) {
+        List<List<Integer>>[][] dp = new ArrayList[sum + 1][arr.size() + 1];
+        for (int i = 0; i <= arr.size(); i++) {
+            dp[0][i] = new ArrayList<>();
+            dp[0][i].add(new ArrayList<>());
         }
-        if(second > a.size() - 1){
-            return fifteens(a, 0, first + 1, first + 2);
+
+        for (int i = 1; i <= sum; i++) {
+            for (int j = 0; j <= arr.size(); j++) {
+                dp[i][j] = new ArrayList<>();
+                if (j > 0) {
+                    dp[i][j].addAll(dp[i][j - 1]);
+                    if (i >= arr.get(j - 1).getValue()) {
+                        for (List<Integer> subset : dp[i - arr.get(j - 1).getValue()][j - 1]) {
+                            List<Integer> newSubset = new ArrayList<>(subset);
+                            newSubset.add(arr.get(j - 1).getValue());
+                            dp[i][j].add(newSubset);
+                        }
+                    }
+                }
+            }
         }
-        else{
-            ArrayList<Integer> sub = new ArrayList<Integer>(2);
-            sub.add(a.get(first));
-            sub.add(a.get(second));
-            for(int i = 0; i < sub.size(); i++){
-                sum = sum + sub.get(i);
-            }
-            if(sum == 15){
-                return 2 + fifteens(a, 0, first, second + 1);
-            }
-            else{
-                return fifteens(a, 0, first, second + 1);
-            }
-        }
+        return dp[sum][arr.size()];
     }
-    private static int fifteens(ArrayList<Integer> a, int sum, int first, int second, int third){
-        if(first == a.size() - 3 && second == a.size() - 2 && third == a.size()){
-            return fifteens(a, 0, 0, 1, 2, 3);
-        }
-        if(third > a.size() - 1 && first == 1 && second == 3){
-            return fifteens(a, 0, 2, 3, 4);
-        }
-        else if(third > a.size() - 1 && first == 1 && second == 2){
-            return fifteens(a, 0, first, second + 1, second + 2);
-        }
-        else if(third > a.size() - 1 && first == 0 && second == 3){
-            return fifteens(a, 0, first + 1, first + 2, first + 3);
-        }
-        else if(third > a.size() - 1 && first == 0){
-            return fifteens(a, 0, first, second + 1, second + 2);
-        }
-        else{
-            ArrayList<Integer> sub = new ArrayList<Integer>(3);
-            sub.add(a.get(first));
-            sub.add(a.get(second));
-            sub.add(a.get(third));
-            for(int i = 0; i < sub.size(); i++){
-                sum = sum + sub.get(i);
-            }
-            if(sum == 15){
-                return 2 + fifteens(a, 0, first, second, third + 1);
-            }
-            else{
-                return fifteens(a, 0, first, second, third + 1);
-            }
-        }
-    }
-    private static int fifteens(ArrayList<Integer> a, int sum, int first, int second, int third, int fourth){
-        if(first == a.size() - 4 && second == a.size() - 3 && third == a.size() - 2 && fourth == a.size()){
-            return fifteens(a, 0);
-        }
-        if(fourth > a.size() - 1 && first == 0 && second == 2){
-            return fifteens(a, 0, 1, 2, 3, 4);
-        }
-        else if(fourth > a.size() - 1 && first == 0 && third == 3){
-            return fifteens(a, 0, first, second + 1, second + 2, second + 3);
-        }
-        else if(fourth > a.size() - 1 && first == 0){
-            return fifteens(a, 0, first, second, third + 1, third + 2);
-        }
-        else{
-            ArrayList<Integer> sub = new ArrayList<Integer>(4);
-            sub.add(a.get(first));
-            sub.add(a.get(second));
-            sub.add(a.get(third));
-            sub.add(a.get(fourth));
-            for(int i = 0; i < sub.size(); i++){
-                sum = sum + sub.get(i);
-            }
-            if(sum == 15){
-                return 2 + fifteens(a, 0, first, second, third, fourth + 1);
-            }
-            else{
-                return fifteens(a, 0, first, second, third, fourth + 1);
-            }
-        }
-    }
-    private static int fifteens(ArrayList<Integer> a, int sum){
-        ArrayList<Integer> sub = new ArrayList<Integer>(5);
-        for(int i = 0; i < sub.size(); i++){
-            sub.add(a.get(i));
-        }
-        for(int i = 0; i < sub.size(); i++){
-            sum = sum + sub.get(i);
-        }
-        if(sum == 15){
-            return 2;
-        }
-        else{
-            return 0;
-        }
-    }
+
     
     public int flush(ArrayList<Card> a){
         HashMap<String, Integer> map = new HashMap<>();
@@ -163,77 +88,13 @@ public class Scoring{
         return flushScore;
     }
     
-    public static int runs(ArrayList<Integer> num){
-        int tempScore = 0;
-        int duplicatesCount = 0;
-        boolean duplicates = false;
-        Collections.sort(num);
-        for(int i = 0; i < num.size() - 1; i++){
-            if(num.get(i) == num.get(i + 1)){
-                duplicates = true;
-                duplicatesCount++;
-            }
-        }
-        if(duplicates == false){
-            //run of 3
-            for(int i = 0; i < 3; i++){
-                if(num.get(i) + 1 == num.get(i + 1) && num.get(i) + 2 == num.get(i + 2)){
-                    tempScore = 3;
-                }
-            }
-            //run of 4
-            for(int i = 0; i < 2; i++){
-                if(num.get(i) + 1 == num.get(i + 1) && num.get(i) + 2 == num.get(i + 2) && num.get(i) + 3 == num.get(i + 3)){
-                    tempScore = 4;
-                }
-            }
-            //run of 5
-            if(num.get(0) + 1 == num.get(1) && num.get(1) + 1 == num.get(2) && num.get(2) + 1 == num.get(3) && num.get(3) + 1 == num.get(4)){
-                tempScore = 5;
-            }
-        }
-        else if(duplicatesCount < 2 && duplicates == true){
-            //double triple runs
-            for(int i = 0; i < 2; i++){
-                if((num.get(i) + 1 == num.get(i + 1) && num.get(i + 1) + 1 == num.get(i + 2) && num.get(i + 2) == num.get(i + 3)) ||
-                    (num.get(i) + 1 == num.get(i + 1) && num.get(i + 1) == num.get(i + 2) && num.get(i + 2) + 1 == num.get(i + 3)) ||
-                    (num.get(i) == num.get(i + 1) && num.get(i + 1) + 1 == num.get(i + 2) && num.get(i + 2) + 1 == num.get(i + 3))){
-                    tempScore = tempScore + 6;
-                    //double quad runs
-                    if(i == 0 && num.get(3) + 1 == num.get(4)){
-                        tempScore = tempScore - 4 ;
-                    }
-                    else if(i == 0 && num.get(3) == num.get(4)){
-                        tempScore = tempScore + 2;
-                    }
-                }
-            }
-        }
-        else{
-            //triple triple runs
-            //quad triple runs
-            if((num.get(0) == num.get(1) && num.get(0) == num.get(2) && num.get(0) + 1 == num.get(3) && num.get(0) + 2 == num.get(4)) ||
-               (num.get(0) + 1 == num.get(1) && num.get(1) == num.get(2) && num.get(2) == num.get(3) && num.get(0) + 2 == num.get(4)) ||
-               (num.get(0) + 1 == num.get(1) && num.get(1) + 1 == num.get(2) && num.get(2) == num.get(3) && num.get(3) == num.get(4))){
-                   tempScore = 9;
-            }
-            else if((num.get(0) == num.get(1) && num.get(1) + 1 == num.get(2) && num.get(2) == num.get(3) && num.get(3) + 1 == num.get(4)) ||
-                    (num.get(0) == num.get(1) && num.get(1) + 1 == num.get(2) && num.get(2) + 1 == num.get(3) && num.get(3) == num.get(4)) ||
-                    (num.get(0) + 1 == num.get(1) && num.get(1) == num.get(2) && num.get(2) + 1 == num.get(3) && num.get(3) == num.get(4))){
-                        tempScore = 12;
-            }
-        }
-        if(tempScore > 0){
-            return tempScore;
-        }
-        else{
-            return 0;
-        }
+    public int runs(ArrayList<Card> a){
+        return 1;
     }
     
-    public static int nibs(Card c){
+    public int nibs(Card c){
         int jackCheck = c.getValue();
-        if(jackCheck.contains("Jack")){
+        if(jackCheck == 11){
             return 2;
         }
         else{
