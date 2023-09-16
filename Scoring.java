@@ -14,6 +14,22 @@ public class Scoring{
         sortHand(this.sortedHand);
     }
 
+    public int totalScore(Card topCard){
+        int totScore = 0;
+        int pairsScore = pairs(this.sortedHand);
+        System.out.println("Pairs Score = " + pairsScore);
+        int fifteensScore = fifteens(this.sortedHand);
+        System.out.println("fifteen Score = " + fifteensScore);
+        int runsScore = runs(this.sortedHand);
+        System.out.println("Runs Score = " + runsScore);
+        int nobsScore = nobs(this.sortedHand, topCard);
+        System.out.println("Nobs Score = " + nobsScore);
+        int nibsScore = nibs(topCard);
+        System.out.println("Nibs Score = " + nibsScore);
+        totScore = totScore + pairsScore + fifteensScore + runsScore + nobsScore + nibsScore;
+        return totScore;
+    }
+
     private void sortHand(ArrayList<Card> hand){
         int n = hand.size();
         for (int i = 1; i < n; ++i) {
@@ -43,9 +59,22 @@ public class Scoring{
     }
     
     public int fifteens(ArrayList<Card> arr){
-        List<List<Integer>> fifteenList = fifteens(arr, 15);
-        System.out.println(fifteenList);
+        ArrayList<Card> adjustedHand = faceValueAdjust(arr);
+        List<List<Integer>> fifteenList = fifteens(adjustedHand, 15);
         return fifteenList.size() * 2;
+    }
+
+    private ArrayList<Card> faceValueAdjust(ArrayList<Card> arr){
+        ArrayList<Card> handCopy = new ArrayList<Card>();
+        for(Card c : arr){
+            handCopy.add(c.clone());
+        }
+        for(Card hc : handCopy){
+            if(hc.getValue() > 10){
+                hc.setValue(10);
+            }
+        }
+        return handCopy;
     }
 
     private List<List<Integer>> fifteens(ArrayList<Card> arr, int sum) {
@@ -140,22 +169,16 @@ public class Scoring{
         if(jackCheck == 11){
             return 2;
         }
-        else{
-            return 0;
-        }
+        return 0;
     }
     
-    public static int nobs(ArrayList<Card> a, Card c){
+    public int nobs(ArrayList<Card> a, Card c){
         String topSuit = c.getSuit();
-        Card store = a.remove(a.size() - 1);
         for(Card x : a){
-            String cardSearch = x.getValue() + " " + x.getSuit();
-            if(cardSearch.contains("Jack") && cardSearch.contains(topSuit)){
-                a.add(store);
+            if(x.getValue() == 11 && x.getSuit() == topSuit){
                 return 1;
             }
         }
-        a.add(store);
         return 0;
     }
 }

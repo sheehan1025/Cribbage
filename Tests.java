@@ -59,7 +59,7 @@ public class Tests {
         maxFifteens.add(new Card("Diamond", 5));
         maxFifteens.add(new Card("Heart", 5));
         maxFifteens.add(new Card("Club", 5));
-        maxFifteens.add(new Card("Club", 10));
+        maxFifteens.add(new Card("Club", 11));
         assertEquals(16, score.fifteens(maxFifteens));
 
         ArrayList<Card> noFifteens = new ArrayList<Card>();
@@ -113,6 +113,14 @@ public class Tests {
         noRun.add(new Card("Club", 7));
         assertEquals(0, score.runs(noRun));
 
+    }
+
+    @Test
+    public void nobsTest(){
+        Card topCard = new Card("Spade", 1);
+        ArrayList<Card> nobHit = new ArrayList<Card>();
+        nobHit.add(new Card("Spade", 11));
+        assertEquals(1, score.nobs(nobHit, topCard));
     }
 
 }

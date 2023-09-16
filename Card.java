@@ -1,4 +1,4 @@
-public class Card {
+public class Card implements Cloneable {
     private String suit;
     private int value;
     
@@ -18,6 +18,11 @@ public class Card {
     }
     public void setValue(int value){
         this.value = value;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     public String toString(){
