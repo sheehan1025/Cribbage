@@ -59,47 +59,44 @@ public class Scoring{
     }
     
     public int fifteens(ArrayList<Card> arr){
-        ArrayList<Card> adjustedHand = faceValueAdjust(arr);
+        int[] adjustedHand = faceValueAdjust(arr);
         List<List<Integer>> fifteenList = fifteens(adjustedHand, 15);
         return fifteenList.size() * 2;
     }
 
-    private ArrayList<Card> faceValueAdjust(ArrayList<Card> arr){
-        ArrayList<Card> handCopy = new ArrayList<Card>();
-        for(Card c : arr){
-            handCopy.add(c.clone());
-        }
-        for(Card hc : handCopy){
-            if(hc.getValue() > 10){
-                hc.setValue(10);
+    private int[] faceValueAdjust(ArrayList<Card> arr){
+        int[] ret_lst = new int[arr.size()];
+        for(int i = 0; i < ret_lst.length; i++){
+            if(arr.get(i).getValue() > 10){
+                ret_lst[i] = 10;
+            }
+            else{
+                ret_lst[i] = arr.get(i).getValue();
             }
         }
-        return handCopy;
+        return ret_lst;
     }
 
-    private List<List<Integer>> fifteens(ArrayList<Card> arr, int sum) {
-        List<List<Integer>>[][] dp = new ArrayList[sum + 1][arr.size() + 1];
-        for (int i = 0; i <= arr.size(); i++) {
-            dp[0][i] = new ArrayList<>();
-            dp[0][i].add(new ArrayList<>());
-        }
-
-        for (int i = 1; i <= sum; i++) {
-            for (int j = 0; j <= arr.size(); j++) {
+    private List<List<Integer>> fifteens(int [] arr, int sum) {
+        List<List<Integer>>[][] dp = new ArrayList[arr.length + 1][sum + 1];
+        for (int i = 0; i <= arr.length; i++) {
+            for (int j = 0; j <= sum; j++) {
                 dp[i][j] = new ArrayList<>();
-                if (j > 0) {
-                    dp[i][j].addAll(dp[i][j - 1]);
-                    if (i >= arr.get(j - 1).getValue()) {
-                        for (List<Integer> subset : dp[i - arr.get(j - 1).getValue()][j - 1]) {
+                if (j == 0) {
+                    dp[i][j].add(new ArrayList<>());
+                } else if (i != 0) {
+                    dp[i][j].addAll(dp[i - 1][j]);
+                    if (arr[i - 1] <= j) {
+                        for (List<Integer> subset : dp[i - 1][j - arr[i - 1]]) {
                             List<Integer> newSubset = new ArrayList<>(subset);
-                            newSubset.add(arr.get(j - 1).getValue());
+                            newSubset.add(arr[i - 1]);
                             dp[i][j].add(newSubset);
                         }
                     }
                 }
             }
         }
-        return dp[sum][arr.size()];
+        return dp[arr.length][sum];
     }
 
     
