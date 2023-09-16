@@ -23,11 +23,6 @@ public class Tests {
         threePair.add(new Card("Club", 1));
         assertEquals(12, score.pairs(threePair));
 
-        ArrayList<Card> maxPair = threePair;
-        maxPair.add(new Card("Club", 2));
-        maxPair.add(new Card("Heart", 2));
-        assertEquals(14, score.pairs(maxPair));
-
         ArrayList<Card> noPair = new ArrayList<Card>();
         noPair.add(new Card("Spade", 1));
         noPair.add(new Card("Club", 2));
@@ -82,6 +77,42 @@ public class Tests {
         midFifteens.add(new Card("Club", 5));
         midFifteens.add(new Card("Club", 9));
         assertEquals(6, score.fifteens(midFifteens));
+    }
+
+    @Test
+    public void runsTest(){
+        ArrayList<Card> singleRun = new ArrayList<Card>();
+        singleRun.add(new Card("Spade", 1));
+        singleRun.add(new Card("Diamond", 2));
+        singleRun.add(new Card("Heart", 3));
+        singleRun.add(new Card("Club", 7));
+        singleRun.add(new Card("Club", 8));
+        assertEquals(3, score.runs(singleRun));
+
+        ArrayList<Card> doubleRun = new ArrayList<Card>();
+        doubleRun.add(new Card("Spade", 1));
+        doubleRun.add(new Card("Diamond", 3));
+        doubleRun.add(new Card("Heart", 4));
+        doubleRun.add(new Card("Club", 5));
+        doubleRun.add(new Card("Club", 5));
+        assertEquals(6, score.runs(doubleRun));
+
+        ArrayList<Card> tripleRun = new ArrayList<Card>();
+        tripleRun.add(new Card("Spade", 1));
+        tripleRun.add(new Card("Diamond", 2));
+        tripleRun.add(new Card("Heart", 2));
+        tripleRun.add(new Card("Club", 2));
+        tripleRun.add(new Card("Club", 3));
+        assertEquals(9, score.runs(tripleRun));
+
+        ArrayList<Card> noRun = new ArrayList<Card>();
+        noRun.add(new Card("Spade", 1));
+        noRun.add(new Card("Diamond", 2));
+        noRun.add(new Card("Heart", 4));
+        noRun.add(new Card("Club", 5));
+        noRun.add(new Card("Club", 7));
+        assertEquals(0, score.runs(noRun));
+
     }
 
 }

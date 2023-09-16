@@ -89,9 +89,52 @@ public class Scoring{
     }
     
     public int runs(ArrayList<Card> a){
-        return 1;
+        int runCount = 0;
+        int currRunCount = 1;
+        boolean isDoubleRun = false;
+        boolean isTripleRun = false;
+        for(int i = 1; i < a.size(); i++){
+            if(a.get(i).getValue() == a.get(i - 1).getValue() + 1){
+                currRunCount++;
+            }
+            else if(a.get(i).getValue() == a.get(i - 1).getValue() && isDoubleRun){
+                isTripleRun = true;
+            }
+            else if(a.get(i).getValue() == a.get(i - 1).getValue()){
+                isDoubleRun = true;
+            }
+            else{
+                if (currRunCount >= 3) {
+                    if (isDoubleRun && !isTripleRun) {
+                        runCount += currRunCount * 2;
+                    }
+                    else if (isTripleRun) {
+                        runCount += currRunCount * 3;
+                    }
+                    else {
+                        runCount += currRunCount;
+                    }
+                }
+                currRunCount = 1;
+                isDoubleRun = false;
+                isTripleRun = false;
+            }
+        }
+        if (currRunCount >= 3) {
+            if (isDoubleRun && !isTripleRun) {
+                runCount += currRunCount * 2;
+            }
+            else if (isTripleRun) {
+                runCount += currRunCount * 3;
+            }
+            else {
+                runCount += currRunCount;
+            }
+        }
+        return runCount;
     }
-    
+
+
     public int nibs(Card c){
         int jackCheck = c.getValue();
         if(jackCheck == 11){
