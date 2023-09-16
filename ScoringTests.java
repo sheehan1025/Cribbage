@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import org.junit.*;
 
 
-public class Tests {
+public class ScoringTests {
 
     Scoring score = new Scoring();
 

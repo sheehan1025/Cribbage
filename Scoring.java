@@ -15,18 +15,12 @@ public class Scoring{
     }
 
     public int totalScore(Card topCard){
-        int totScore = 0;
-        int pairsScore = pairs(this.sortedHand);
-        System.out.println("Pairs Score = " + pairsScore);
-        int fifteensScore = fifteens(this.sortedHand);
-        System.out.println("fifteen Score = " + fifteensScore);
-        int runsScore = runs(this.sortedHand);
-        System.out.println("Runs Score = " + runsScore);
-        int nobsScore = nobs(this.sortedHand, topCard);
-        System.out.println("Nobs Score = " + nobsScore);
-        int nibsScore = nibs(topCard);
-        System.out.println("Nibs Score = " + nibsScore);
-        totScore = totScore + pairsScore + fifteensScore + runsScore + nobsScore + nibsScore;
+        int totScore = pairs(this.sortedHand);
+        totScore += fifteens(this.sortedHand);
+        totScore += flush(this.sortedHand);
+        totScore += runs(this.sortedHand);
+        totScore += nobs(this.sortedHand, topCard);
+        totScore += nibs(topCard);
         return totScore;
     }
 
