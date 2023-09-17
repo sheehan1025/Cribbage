@@ -1,33 +1,30 @@
-import java.util.Scanner;
 import java.util.*;
 import java.lang.Math;
 public class Counting{
     private static boolean gameEnd = false;
-    private static ArrayList<Card> field = new ArrayList<Card>();
-    private static ArrayList<Integer> fieldValues = new ArrayList<Integer>();
-    private static ArrayList<Integer> fieldValuesForRuns = new ArrayList<Integer>();
+    private static Field field = new Field();
     
     public static void counting(ArrayList<Card> dealerHandForCounting, ArrayList<Card> nonDealerHandForCounting, int player){
-        field.clear();
-        updateFieldValues(fieldValues, field);
-        updateFieldValuesForRuns(fieldValuesForRuns, field);
+        field.clearField();
         Scanner s = new Scanner(System.in);
         int dealerChoice = 0;
         int nonDealerChoice = 0;
         ArrayList<Card> dealerHand = dealerHandForCounting;
         ArrayList<Card> nonDealerHand = nonDealerHandForCounting;
+        //player is dealer
         if(player == 0){
             boolean doesPlayerSayGo = false;
-            while(dealerHand.size() + nonDealerHand.size() > 0){
+            while(!isCountingDone(dealerHand, nonDealerHand)){
                 //prompt non dealer to play a card
-                //played card gets added to arraylist to represent cards on field
+                //played card gets added to field
                 if(nonDealerChoice < nonDealerHand.size() && doesPlayerSayGo == false){
+                    //condition if nondealer has a card to play and player does not
                     if(nonDealerHand.size() > 0 && dealerHand.size() == 0){
-                        if(fieldSum(fieldValues) < 31 && field.size() > 4){
-                            field.clear();
-                            updateFieldValues(fieldValues, field);
-                            updateFieldValuesForRuns(fieldValuesForRuns, field);
+                        //clear the field as the nondealer will play out there cards
+                        if(field.getSum() < 31 && field.size() > 4){
+                            field.clearField();
                         }
+                        //non dealer played last card
                         if(nonDealerHand.size() == 1){
                             System.out.println("Opponent scored 1 point for last card");
                             GameDisplay.setOpponentTotalScore(1);
@@ -37,58 +34,29 @@ public class Counting{
                             }
                         }
                     }
-                    field.add(nonDealerHand.get(nonDealerChoice));
-                    updateFieldValues(fieldValues, field);
-                    updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    if(fieldSum(fieldValues) > 31){
+                    // non dealer adds card to the field
+                    field.addCard(nonDealerHand.get(nonDealerChoice));
+                    // card went over 31 nondealer increase choice to find new card
+                    if(field.getSum() > 31){
                         field.remove(field.size() - 1);
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
                         nonDealerChoice = nonDealerChoice + 1;
                         continue;
                     }
+                    // show nondealer opponent played card and check for points and game end.
                     System.out.println("Opponent played " + nonDealerHand.get(nonDealerChoice).toString());
-                    if(pairsCounting(field) > 0){
-                        System.out.println("Opponent scored " + pairsCounting(field) + " points in pairs");
-                        GameDisplay.setOpponentTotalScore(pairsCounting(field));
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(runsCounting(fieldValuesForRuns) > 0){
-                        System.out.println("Opponent scored " + runsCounting(fieldValuesForRuns) + " points in runs");
-                        GameDisplay.setOpponentTotalScore(runsCounting(fieldValuesForRuns));
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(fieldSum(fieldValues) == 15){
-                        System.out.println("Opponent scored 2 points in fifteens");
-                        GameDisplay.setOpponentTotalScore(2);
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(thirtyOne(fieldValues) == true){
-                        System.out.println("Opponent scored 2 points by hitting 31");
-                        GameDisplay.setOpponentTotalScore(2);
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                        field.clear();
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    }   
+                    //
+                    pointsCheck(field, "Opponent");
+                    //check to not allow card to be replayed
                     nonDealerHand.remove(nonDealerChoice);
                     nonDealerChoice = 0;
                 }
+                // non dealer opponent does not have a play available (value would go above 31 or hand is empty)
                 if(nonDealerChoice >= nonDealerHand.size() && nonDealerHand.size() != 0 && dealerHand.size() != 0 && field.size() > 0){
                     System.out.println("Non dealer says go");
+                    // prompt dealer player for a card
                     int dealerPlayDecider = GameDisplay.promptNumberReadLine(s, "Do you have a card to play? Enter Yes or No.", 0);
+                    // player does not have a card and gets the point from the go
+                    // adds their point, checks for game end and clears the field
                     if(dealerPlayDecider == -1){
                         System.out.println("You scored 1 point for a go from your opponent");
                         GameDisplay.setPlayerTotalScore(1);
@@ -97,8 +65,6 @@ public class Counting{
                             break;
                         }
                         field.clear();
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
                         nonDealerChoice = 0;
                         continue;
                     }
@@ -109,6 +75,7 @@ public class Counting{
                     doesPlayerSayGo = false;
                     //System.out.println("Dealer Hand: " + "\n" + Deck.toString(dealerHand));
                     dealerChoice = GameDisplay.promptNumberReadLine(s, "Play a card or go" + "\n" + "Dealer Hand: " + "\n" + Deck.toString(dealerHand), dealerHand.size());
+                    // opponent receives  go, check for game end and clear if opponent cant play a card.
                     if(dealerChoice == -1){
                         System.out.println("Your opponent scored 1 point from a go from you.");
                         GameDisplay.setOpponentTotalScore(1);
@@ -117,290 +84,85 @@ public class Counting{
                             break;
                         }
                         field.clear();
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
                         doesPlayerSayGo = true;
                         if(nonDealerChoice > nonDealerHand.size() - 1){
                             nonDealerChoice = 0;
                         }
                         continue;
                     }
+                    //add card to field
                     field.add(dealerHand.get(dealerChoice - 1));
-                    updateFieldValues(fieldValues, field);
-                    updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    //check if pair, 15, run, 31, or over
+                    //check if valid to play
                     if(fieldSum(fieldValues) > 31){
                         overThirtyOne(dealerHand);
                     }
-                    if(pairsCounting(field) > 0){
-                        System.out.println("You scored " + pairsCounting(field)+ " points in pairs");
-                        GameDisplay.setPlayerTotalScore(pairsCounting(field));
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(runsCounting(fieldValuesForRuns) > 0){
-                        System.out.println("You scored " + runsCounting(fieldValuesForRuns)+ " points in runs");
-                        GameDisplay.setPlayerTotalScore(runsCounting(fieldValuesForRuns));
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(fieldSum(fieldValues) == 15){
-                        System.out.println("You scored 2 points in fifteens");
-                        GameDisplay.setPlayerTotalScore(2);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(thirtyOne(fieldValues) == true){
-                        System.out.println("You scored 2 points for hitting 31");
-                        GameDisplay.setPlayerTotalScore(2);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                        field.clear();
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    }
-                    if(nonDealerHand.size() == 0 && dealerHand.size() > 0){
-                        System.out.println("You scored 1 point for last card");
-                        GameDisplay.setPlayerTotalScore(1);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
+                    //check points and game end
+                    pointsCheck(field, "You");
+                    // prevent display of played card
                     dealerHand.remove(dealerChoice - 1);
                     System.out.println("Field: " + "Field total = " + fieldSum(fieldValues) + "\n" + Deck.toString(field));
                 }
-                if(nonDealerChoice > nonDealerHand.size() - 1){
-                    nonDealerChoice = 0;
-                }
-            }
-        }
-        if(player == 1){
-            boolean doesOpponentSayGo = false;
-            boolean opponentSearching = false;
-            while(dealerHand.size() + nonDealerHand.size() > 0){
-                if(nonDealerHand.size() > 0 && dealerChoice == 0 && doesOpponentSayGo == false && opponentSearching == false){
-                    nonDealerChoice = GameDisplay.promptNumberReadLine(s, "Play a card or go" + "\n" + "Non Dealer Hand: " + "\n" + Deck.toString(nonDealerHand), nonDealerHand.size());
-                    if(nonDealerChoice == -1){
-                        System.out.println("Your opponent scored 1 point from a go from you.");
-                        GameDisplay.setOpponentTotalScore(1);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                        field.clear();
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
-                        if(dealerChoice > dealerHand.size() - 1){
-                            nonDealerChoice = 0;
-                        }
-                        continue;
-                    }
-                    field.add(nonDealerHand.get(nonDealerChoice - 1));
-                    updateFieldValues(fieldValues, field);
-                    updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    if(fieldSum(fieldValues) > 31){
-                        overThirtyOne(nonDealerHand);
-                    }
-                    if(pairsCounting(field) > 0){
-                        System.out.println("You scored " + pairsCounting(field)+ " points in pairs");
-                        GameDisplay.setPlayerTotalScore(pairsCounting(field));
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(runsCounting(fieldValuesForRuns) > 0){
-                        System.out.println("You scored " + runsCounting(fieldValuesForRuns)+ " points in runs");
-                        GameDisplay.setPlayerTotalScore(runsCounting(fieldValuesForRuns));
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(fieldSum(fieldValues) == 15){
-                        System.out.println("You scored 2 points in fifteens");
-                        GameDisplay.setPlayerTotalScore(2);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(thirtyOne(fieldValues) == true){
-                        System.out.println("You scored 2 points for hitting 31");
-                        GameDisplay.setPlayerTotalScore(2);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                        field.clear();
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    }
-                    if(dealerHand.size() == 0 && nonDealerHand.size() > 0){
-                        System.out.println("You scored 1 point for last card");
-                        GameDisplay.setPlayerTotalScore(1);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    nonDealerHand.remove(nonDealerChoice - 1);
-                    System.out.println("Field: " + "Field total = " + fieldSum(fieldValues) + "\n" + Deck.toString(field));
-                }
-                if(dealerChoice >= dealerHand.size() && dealerHand.size() != 0 && nonDealerHand.size() != 0 && field.size() > 0 && opponentSearching == true){
-                    System.out.println("Dealer says go");
-                    int nonDealerPlayDecider = GameDisplay.promptNumberReadLine(s, "Do you have a card to play? Enter Yes or No.", 0);
-                    if(nonDealerPlayDecider == -1){
-                        System.out.println("You scored 1 point for a go from your opponent");
-                        GameDisplay.setPlayerTotalScore(1);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                        field.clear();
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
-                        dealerChoice = 0;
-                        doesOpponentSayGo = true;
-                        continue;
-                    }
-                    else{
-                        opponentSearching = false;
-                        continue;
-                    }
-                }
-                else if(dealerChoice >= dealerHand.size() && dealerHand.size() != 0 && nonDealerHand.size() == 0 && field.size() > 0 && opponentSearching == true){
-                    System.out.println("Dealer says go and you have no cards to play.");
-                    System.out.println("You scored 1 point for a go from your opponent.");
-                    GameDisplay.setPlayerTotalScore(1);
-                    if(GameDisplay.getPlayerTotalScore() > 120){
-                        gameEnd = true;
-                        break;
-                    }
-                    field.clear();
-                    updateFieldValues(fieldValues, field);
-                    updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    dealerChoice = 0;
-                    doesOpponentSayGo = true;
-                    continue;
-                }
-                if(dealerChoice < dealerHand.size()){
-                    doesOpponentSayGo = false;
-                    if(dealerHand.size() > 0 && nonDealerHand.size() == 0){
-                        if(fieldSum(fieldValues) < 31 && field.size() > 4){
-                            field.clear();
-                            updateFieldValues(fieldValues, field);
-                            updateFieldValuesForRuns(fieldValuesForRuns, field);
-                        }
-                    }
-                    field.add(dealerHand.get(dealerChoice));
-                    updateFieldValues(fieldValues, field);
-                    updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    opponentSearching = false;
-                    if(fieldSum(fieldValues) > 31){
-                        field.remove(field.size() - 1);
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
-                        dealerChoice = dealerChoice + 1;
-                        opponentSearching = true;
-                        continue;
-                    }
-                    System.out.println("Opponent played " + dealerHand.get(dealerChoice).toString());
-                    if(pairsCounting(field) > 0){
-                        System.out.println("Opponent scored " + pairsCounting(field) + " points in pairs");
-                        GameDisplay.setOpponentTotalScore(pairsCounting(field));
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(runsCounting(fieldValuesForRuns) > 0){
-                        System.out.println("Opponent scored " + runsCounting(fieldValuesForRuns) + " points in runs");
-                        GameDisplay.setOpponentTotalScore(runsCounting(fieldValuesForRuns));
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(fieldSum(fieldValues) == 15){
-                        System.out.println("Opponent scored 2 points in fifteens");
-                        GameDisplay.setOpponentTotalScore(2);
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    if(thirtyOne(fieldValues) == true){
-                        System.out.println("Opponent scored 2 points by hitting 31");
-                        GameDisplay.setOpponentTotalScore(2);
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                        field.clear();
-                        updateFieldValues(fieldValues, field);
-                        updateFieldValuesForRuns(fieldValuesForRuns, field);
-                    }
-                    if(dealerHand.size() == 1 && nonDealerHand.size() == 0){
-                        System.out.println("Opponent scored 1 point for last card");
-                        GameDisplay.setOpponentTotalScore(1);
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                    }
-                    dealerHand.remove(dealerChoice);
-                    System.out.println("Field: " + "Field total = " + fieldSum(fieldValues) + "\n" + Deck.toString(field));
-                    dealerChoice = 0;
-                }
             }
         }
     }
     
-    public static void updateFieldValues(ArrayList<Integer> fieldOutput, ArrayList<Card> fieldInput){
-        fieldOutput.clear();
-        Deck.handValues(fieldOutput, fieldInput);
+    public static boolean isCardAvailable(ArrayList<Card> hand){
+        return hand.size() > 0;
+    }
+
+    public static boolean isCountingDone(ArrayList<Card> dealerHand, ArrayList<Card> nonDealerHand){
+        if(isCardAvailable(nonDealerHand) || isCardAvailable(dealerHand)){
+            return false;
+        }
+        return true;
+    }
+
+    public static Card opponentCardChoice(ArrayList<Card> opponentHand){
+        return null;
+    }
+
+    public static int pointsCheck(Field field, String player){
+        int scored = 0;
+        int pairsScore = pairsCounting(field);
+        int runsScore = runsCounting(field);
+        int fifteenScore = fieldSum(field);
+        boolean hitThirtyOne = thirtyOne(field);
+        if(pairsScore > 0){
+            System.out.println(player +" scored " + pairsScore + " points in pairs");
+        }
+        if(runsScore > 0){
+            System.out.println(player +" scored " + runsScore + " points in runs");
+        }
+        if(fifteenScore == 15){
+            System.out.println(player + " scored " + "2 points in fifteens");
+        }
+        if(hitThirtyOne){
+            System.out.println(player + " scored " + "2 points by hitting 31");
+            field.clearField();
+        } 
+        
     }
     
-    public static void updateFieldValuesForRuns(ArrayList<Integer> fieldOutput, ArrayList<Card> fieldInput){
-        fieldOutput.clear();
-        Deck.handValuesForRuns(fieldOutput, fieldInput);
+    public static boolean isGameEnd(int score){
+        if(GameDisplay.getOpponentTotalScore() > 120){
+            gameEnd = true;
+            return gameEnd;
+        }
+        if(GameDisplay.getPlayerTotalScore() > 120){
+            gameEnd = true;
+            return gameEnd;
+        }
+        return gameEnd;
     }
-    
-    public static int pairsCounting(ArrayList<Card> a){
+
+    public static int pairsCounting(Field f){
         int score = 0;
-        int round = a.size() - 1;
-        if(a.size() < 2){
-            return 0;
+        int count = 1;
+        int fieldSize = f.size() - 1;
+        while(f.getTail().card.getValue() == f.getFieldNode(fieldSize - 1).card.getValue()){
+            count++;
         }
-        for(int i = round; i > 0; i--){
-            Card c = a.get(i);
-            String value = c.getValue();
-            Card c2 = a.get(i - 1);
-            String value2 = c2.getValue();
-            if(value == value2){
-                score = score + 2;
-            }
-            else{
-                break;
-            }
-        }
-        if(score == 8){
-            score = 12;
-        }
-        if(score == 4){
-            score = 6;
-        }
-        return score;
+        return score + count * (count - 1);
     }
     
     public static int runsCounting(ArrayList<Integer> num){
@@ -479,8 +241,6 @@ public class Counting{
         while(over == true){
             System.out.println("Your card goes over 31.");
             field.remove(field.size() - 1); //remove card from the field
-            updateFieldValues(fieldValues, field);
-            updateFieldValuesForRuns(fieldValuesForRuns, field);
             int choice = GameDisplay.promptNumberReadLine(s, "Play a different card or go.", c.size()); // prompt for a new choice
             if(choice == -1){ // if player says go
                 GameDisplay.setOpponentTotalScore(1);
@@ -489,14 +249,10 @@ public class Counting{
                     break;
                 }
                 field.clear(); // clear the field
-                updateFieldValues(fieldValues, field);
-                updateFieldValuesForRuns(fieldValuesForRuns, field);
                 over = false;
                 break;
             }
             field.add(c.get(choice - 1)); // otherwise add new choice to the field\
-            updateFieldValues(fieldValues, field);
-            updateFieldValuesForRuns(fieldValuesForRuns, field);
             if(fieldSum(fieldValues) > 31){ // if still over 31 repeat loop
                 continue;
             }
@@ -507,8 +263,6 @@ public class Counting{
                     break;
                 }
                 field.clear();
-                updateFieldValues(fieldValues, field);
-                updateFieldValuesForRuns(fieldValuesForRuns, field);
                 over = false;
             }
             else{
