@@ -159,8 +159,14 @@ public class Counting{
         int score = 0;
         int count = 1;
         int fieldSize = f.size() - 1;
-        while(f.getTail().card.getValue() == f.getFieldNode(fieldSize - 1).card.getValue()){
-            count++;
+        while(fieldSize > 0){
+            if(f.getTail().card.getValue() == f.getFieldNode(fieldSize - 1).card.getValue()){
+                count++;
+                fieldSize--;    
+            }
+            else{
+                break;
+            }
         }
         return score + count * (count - 1);
     }
