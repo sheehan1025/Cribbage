@@ -1,21 +1,19 @@
 import java.util.*;
+import java.util.Random;
 import java.lang.Math;
 public class Counting{
     private static boolean gameEnd = false;
     private static Field field = new Field();
     
-    public static void counting(ArrayList<Card> dealerHandForCounting, ArrayList<Card> nonDealerHandForCounting, int player){
-        field.clearField();
+    public static void counting(ArrayList<Card> playerHandCounting, ArrayList<Card> opponentHandCounting, int player){
         Scanner s = new Scanner(System.in);
-        int dealerChoice = 0;
-        int nonDealerChoice = 0;
-        ArrayList<Card> dealerHand = dealerHandForCounting;
-        ArrayList<Card> nonDealerHand = nonDealerHandForCounting;
+        ArrayList<Card> playerHand = playerHandCounting;
+        ArrayList<Card> opponentHand = opponentHandCounting;
         //player is dealer
         if(player == 0){
             boolean doesPlayerSayGo = false;
             while(!isCountingDone(dealerHand, nonDealerHand)){
-                //prompt non dealer to play a card
+                //prompt opponent to play a card
                 //played card gets added to field
                 if(nonDealerChoice < nonDealerHand.size() && doesPlayerSayGo == false){
                     //condition if nondealer has a card to play and player does not
@@ -50,7 +48,7 @@ public class Counting{
                     nonDealerHand.remove(nonDealerChoice);
                     nonDealerChoice = 0;
                 }
-                // non dealer opponent does not have a play available (value would go above 31 or hand is empty)
+                // opponent does not have a play available (value would go above 31 or hand is empty)
                 if(nonDealerChoice >= nonDealerHand.size() && nonDealerHand.size() != 0 && dealerHand.size() != 0 && field.size() > 0){
                     System.out.println("Non dealer says go");
                     // prompt dealer player for a card
@@ -60,10 +58,7 @@ public class Counting{
                     if(dealerPlayDecider == -1){
                         System.out.println("You scored 1 point for a go from your opponent");
                         GameDisplay.setPlayerTotalScore(1);
-                        if(GameDisplay.getPlayerTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
+                        isGameEnd
                         field.clear();
                         nonDealerChoice = 0;
                         continue;
@@ -74,37 +69,33 @@ public class Counting{
                 if(dealerHand.size() > 0){
                     doesPlayerSayGo = false;
                     //System.out.println("Dealer Hand: " + "\n" + Deck.toString(dealerHand));
-                    dealerChoice = GameDisplay.promptNumberReadLine(s, "Play a card or go" + "\n" + "Dealer Hand: " + "\n" + Deck.toString(dealerHand), dealerHand.size());
-                    // opponent receives  go, check for game end and clear if opponent cant play a card.
-                    if(dealerChoice == -1){
-                        System.out.println("Your opponent scored 1 point from a go from you.");
+                    playerChoice = GameDisplay.promptNumberReadLine(s, "Play a card or go" + "\n" + "Dealer Hand: " + "\n" + Deck.toString(playerHand), playerHand.size());
+                    // opponent receives  go, check for game end, switch to opponent's turn
+                    if(playerChoice == -1){
+                        System.out.println("Your opponent scored 1 point for a go from you.");
                         GameDisplay.setOpponentTotalScore(1);
-                        if(GameDisplay.getOpponentTotalScore() > 120){
-                            gameEnd = true;
-                            break;
-                        }
-                        field.clear();
+                        isGameEnd();
                         doesPlayerSayGo = true;
-                        if(nonDealerChoice > nonDealerHand.size() - 1){
-                            nonDealerChoice = 0;
-                        }
                         continue;
                     }
-                    //add card to field
-                    field.add(dealerHand.get(dealerChoice - 1));
-                    //check if valid to play
-                    if(fieldSum(fieldValues) > 31){
-                        overThirtyOne(dealerHand);
+                    field.add(playerHand.get(playerChoice - 1));
+                    //check if valid to play, back to start of turn if over 31
+                    if(overThirtyOne(field)){
+                        System.out.println("Invalid card. Count goes over 31.");
+                        field.deleteLastCard();
+                        continue;
                     }
-                    //check points and game end
-                    pointsCheck(field, "You");
-                    // prevent display of played card
-                    dealerHand.remove(dealerChoice - 1);
+                    //score points
+                    GameDisplay.setPlayerTotalScore(pointsCheck(field, "You"));
+                    //check if game is over
+                    isGameEnd();
+                    playerHand.remove(dealerChoice - 1);
                     System.out.println("Field: " + "Field total = " + fieldSum(fieldValues) + "\n" + Deck.toString(field));
                 }
             }
         }
     }
+    
     
     public static boolean isCardAvailable(ArrayList<Card> hand){
         return hand.size() > 0;
@@ -117,8 +108,13 @@ public class Counting{
         return true;
     }
 
-    public static Card opponentCardChoice(ArrayList<Card> opponentHand){
-        return null;
+    public static Card opponentCardChoice(ArrayList<Card> o, boolean playFirst){
+        //chose a random card if they play first
+        if(o.size() == 4 && playFirst){
+            Random r = new Random();
+            int choice = r.nextInt(4);
+            return o.get(choice);
+        }
     }
 
     public static int pointsCheck(Field field, String player){
@@ -145,8 +141,12 @@ public class Counting{
         return score + pairsScore + runsScore;
     }
     
-    public static boolean isGameEnd(int score){
-        if(GameDisplay.getOpponentTotalScore() > 120 || GameDisplay.getPlayerTotalScore() > 120){
+    public static boolean isGameEnd(){
+        if(GameDisplay.getOpponentTotalScore() > 120){
+            gameEnd = true;
+            return gameEnd;
+        }
+        if(GameDisplay.getPlayerTotalScore() > 120){
             gameEnd = true;
             return gameEnd;
         }
