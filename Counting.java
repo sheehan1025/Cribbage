@@ -122,10 +122,10 @@ public class Counting{
     }
 
     public static int pointsCheck(Field field, String player){
-        int scored = 0;
+        int score = 0;
         int pairsScore = pairsCounting(field);
         int runsScore = runsCounting(field);
-        int fifteenScore = fieldSum(field);
+        boolean hitFifteen = fifteen(field);
         boolean hitThirtyOne = thirtyOne(field);
         if(pairsScore > 0){
             System.out.println(player +" scored " + pairsScore + " points in pairs");
@@ -133,22 +133,20 @@ public class Counting{
         if(runsScore > 0){
             System.out.println(player +" scored " + runsScore + " points in runs");
         }
-        if(fifteenScore == 15){
+        if(hitFifteen){
             System.out.println(player + " scored " + "2 points in fifteens");
+            score += 2;
         }
         if(hitThirtyOne){
             System.out.println(player + " scored " + "2 points by hitting 31");
+            score += 2;
             field.clearField();
         } 
-        
+        return score + pairsScore + runsScore;
     }
     
     public static boolean isGameEnd(int score){
-        if(GameDisplay.getOpponentTotalScore() > 120){
-            gameEnd = true;
-            return gameEnd;
-        }
-        if(GameDisplay.getPlayerTotalScore() > 120){
+        if(GameDisplay.getOpponentTotalScore() > 120 || GameDisplay.getPlayerTotalScore() > 120){
             gameEnd = true;
             return gameEnd;
         }
@@ -201,57 +199,16 @@ public class Counting{
         return 0;
     }
     
-    public static boolean thirtyOne(ArrayList<Integer> a){
-        if(fieldSum(a) == 31){
-            return true;
-        }
-        else{
-            return false;
-        }
+    public static boolean thirtyOne(Field f){
+        return f.getSum() == 31;
     }
     
-    public static void overThirtyOne(ArrayList<Card> c){
-        Scanner s = new Scanner(System.in);
-        boolean over = true;
-        while(over == true){
-            System.out.println("Your card goes over 31.");
-            field.remove(field.size() - 1); //remove card from the field
-            int choice = GameDisplay.promptNumberReadLine(s, "Play a different card or go.", c.size()); // prompt for a new choice
-            if(choice == -1){ // if player says go
-                GameDisplay.setOpponentTotalScore(1);
-                if(GameDisplay.getOpponentTotalScore() > 120){
-                    gameEnd = true;
-                    break;
-                }
-                field.clear(); // clear the field
-                over = false;
-                break;
-            }
-            field.add(c.get(choice - 1)); // otherwise add new choice to the field\
-            if(fieldSum(fieldValues) > 31){ // if still over 31 repeat loop
-                continue;
-            }
-            else if(thirtyOne(fieldValues) == true){ // if exact 31 score points and clear the field
-                GameDisplay.setPlayerTotalScore(2);
-                if(GameDisplay.getPlayerTotalScore() > 120){
-                    gameEnd = true;
-                    break;
-                }
-                field.clear();
-                over = false;
-            }
-            else{
-                over = false;
-            }
-        }
+    public static boolean fifteen(Field f){
+        return f.getSum() == 15;
     }
     
-    public static int fieldSum(ArrayList<Integer> a){
-        int sum = 0;
-        for(int i = 0; i < a.size(); i++){
-            sum = sum + a.get(i);
-        }
-        return sum;
+    public static boolean overThirtyOne(Field f){
+        return f.getSum() > 31;
     }
     
     public static boolean getGameEnd(){
