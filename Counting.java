@@ -171,65 +171,38 @@ public class Counting{
         return score + count * (count - 1);
     }
     
-    public static int runsCounting(ArrayList<Integer> num){
-        if(num.size() < 3){
+    public static int runsCounting(Field f){
+        int fieldSize = f.size();
+        if(fieldSize < 3){
             return 0;
         }
-        int round = num.size() - 1;
+        //convert field elements to an int array
+        ArrayList<Integer> runList = new ArrayList<Integer>();
+        for(int i = 0; i < fieldSize; i++){
+            runList.add(f.getCard(i).getValue());
+        }
+
         int runScore = 1;
-        int diff = Math.abs(num.get(round) - num.get(round - 1));
-        int outerDiff = Math.abs(num.get(0) - num.get(round));
-        if(diff == 0){
-            return 0;
-        }
-        else if(diff > round){
-            return 0;
-        }
-        else if(outerDiff > round){
-            return 0;
-        }
-        for(int i = 2; i > 0; i--){
-            if(num.get(round) == num.get(i) && i != round){
+        //initialize the max difference between cards with last played to first played
+        int maxDiff = Math.abs(runList.get(fieldSize - 1) - runList.get(0));
+        for(int i = fieldSize - 2; i > 0; i--){
+            //if a pair is found run not viable
+            if(runList.get(fieldSize - 1) == runList.get(i)){
                 break;
             }
-            diff = Math.abs(num.get(i) - num.get(i - 1));
-            if(diff > num.size() - 1 || diff == 0){
+            int adjDiff = Math.abs(runList.get(i) - runList.get(i - 1));
+            //update maximum difference
+            if(adjDiff > maxDiff) maxDiff = adjDiff;
+            //if the difference between any 2 cards is greater
+            //than the number of cards played; run is not possible.
+            if(adjDiff > runList.size() - 1 || maxDiff > runList.size() - 1){
                 break;
             }
-            else if(diff == 1 || Math.abs(num.get(i - 1) - num.get(round)) == 1){
-                runScore++;
-            }
-            else if(diff > 1 && Math.abs(num.get(round) - num.get(round - diff)) == 1){
-                runScore++;
-            }
+            runScore++;
         }
-        if(num.size() > 3){
-            int[] a = new int[2];
-            int largest = 0;
-            int smallest = 99;
-            for(int i = 0; i < round; i++){
-                if(num.get(i) > largest){
-                    largest = num.get(i);
-                    a[1] = largest;
-                }
-                if(num.get(i) < smallest){
-                    smallest = num.get(i);
-                    a[0] = smallest;
-                }
-            }
-            if(num.get(round) - 1 == a[0] || num.get(round) + 1 == a[0] || num.get(round) - 1 == a[1] || num.get(round) + 1 == a[1]){
-                runScore = runScore + (num.size() - 3);
-            }
-            else{
-                return 0;
-            }
-        }
-        if(runScore >= 3){
-            return runScore;
-        }
-        else{
-            return 0;
-        }
+        //run score only viable if at least 3
+        if(runScore >= 3) return runScore;
+        return 0;
     }
     
     public static boolean thirtyOne(ArrayList<Integer> a){
