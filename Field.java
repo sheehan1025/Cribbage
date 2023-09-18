@@ -111,5 +111,16 @@ public class Field {
             throw new NoSuchElementException();
         }
     }
-}
+    
+    public void deleteLastCard() {
+        if (head == null) return;
 
+        if (head == tail) {
+            head = null;
+            tail = null;
+            return;
+        }
+        tail.prev.next = null;
+        tail = tail.prev;
+    }
+}
