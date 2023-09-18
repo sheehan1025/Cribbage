@@ -183,19 +183,15 @@ public class Counting{
         }
 
         int runScore = 1;
-        //initialize the max difference between cards with last played to first played
-        int maxDiff = Math.abs(runList.get(fieldSize - 1) - runList.get(0));
-        for(int i = fieldSize - 2; i > 0; i--){
-            //if a pair is found run not viable
-            if(runList.get(fieldSize - 1) == runList.get(i)){
-                break;
+        for(int i = fieldSize - 1; i > 0; i--){
+            //if a pair is found a run is not possible
+            if(runList.get(fieldSize - 1) == runList.get(i) && i != fieldSize - 1){
+                return 0;
             }
             int adjDiff = Math.abs(runList.get(i) - runList.get(i - 1));
-            //update maximum difference
-            if(adjDiff > maxDiff) maxDiff = adjDiff;
-            //if the difference between any 2 cards is greater
-            //than the number of cards played; run is not possible.
-            if(adjDiff > runList.size() - 1 || maxDiff > runList.size() - 1){
+            //if the difference between 2 adjacent cards is greater
+            //than the number of cards played the run is broken.
+            if(adjDiff > runList.size() - 1){
                 break;
             }
             runScore++;
