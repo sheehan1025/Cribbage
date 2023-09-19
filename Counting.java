@@ -204,23 +204,35 @@ public class Counting{
         for(int i = 0; i < fieldSize; i++){
             runList.add(f.getCard(i).getValue());
         }
-
-        int runScore = 1;
-        for(int i = fieldSize - 1; i > 0; i--){
-            //if a pair is found a run is not possible
-            if(runList.get(fieldSize - 1) == runList.get(i) && i != fieldSize - 1){
-                return 0;
-            }
-            int adjDiff = Math.abs(runList.get(i) - runList.get(i - 1));
-            //if the difference between 2 adjacent cards is greater
-            //than the number of cards played the run is broken.
-            if(adjDiff > runList.size() - 1){
-                break;
-            }
-            runScore++;
+        ArrayList<Integer> sortRunList = new ArrayList<Integer>();
+        int runLength = 1;
+        int cap = fieldSize - 3;
+        //check the first three elements are a run
+        for(int i = fieldSize - 1; i > cap; i--){
+            sortRunList.add(runList.get(i));
         }
-        //run score only viable if at least 3
-        if(runScore >= 3) return runScore;
+        Collections.sort(sortRunList);
+        for(int i = 0; i < sortRunList.size() - 1; i++){
+            System.out.println(sortRunList);
+            if(sortRunList.get(i) + 1 == sortRunList.get(i + 1)){
+                runLength++;
+            } 
+            else{break;}
+        }
+        //continously add to list until a run is not valid
+        while(cap + 1 < fieldSize){
+            sortRunList.add(runList.get(cap + 1));
+            Collections.sort(sortRunList);
+            for(int i = 0; i < sortRunList.size(); i++){
+                System.out.println(sortRunList);
+                if(sortRunList.get(i) + 1 == sortRunList.get(i + 1)){
+                    runLength++;
+                } 
+                else{break;}
+            }
+            cap++;
+        }
+        if(runLength >= 3) return runLength;
         return 0;
     }
     
