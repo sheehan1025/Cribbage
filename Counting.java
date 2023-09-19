@@ -108,15 +108,40 @@ public class Counting{
         return true;
     }
 
-    public static Card opponentCardChoice(ArrayList<Card> o, boolean playFirst){
+    public static Card opponentCardChoice(Field f, ArrayList<Card> o, boolean playFirst){
         //chose a random card if they play first
         if(o.size() == 4 && playFirst){
             Random r = new Random();
             int choice = r.nextInt(4);
             return o.get(choice);
         }
+        int highScore = 0;
+        int highScoreInd = 0;
+        for(int i = highScoreInd; i < o.size(); i++){
+            Card oppChoice = o.get(i);
+            f.addCard(oppChoice);
+            if(overThirtyOne(f)){
+                f.deleteLastCard();
+                continue;
+            }
+            else if(pairsCounting(f) + runsCounting(f) > 0 || fifteen(f) || thirtyOne(f)){
+                //
+            }
+        }
     }
-
+    
+    public static boolean opponentSaysGo(Field f, ArrayList<Card> o){
+        for(int i = highScoreInd; i < o.size(); i++){
+            Card oppChoice = o.get(i);
+            f.addCard(oppChoice);
+            if(overThirtyOne(f)){
+                f.deleteLastCard();
+                return true;
+            }
+            f.deleteLastCard();
+            return false;
+    }
+    
     public static int pointsCheck(Field field, String player){
         int score = 0;
         int pairsScore = pairsCounting(field);
