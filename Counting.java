@@ -196,44 +196,37 @@ public class Counting{
     
     public static int runsCounting(Field f){
         int fieldSize = f.size();
-        if(fieldSize < 3){
-            return 0;
-        }
-        //convert field elements to an int array
+        if(fieldSize < 3) return 0;
+        
         ArrayList<Integer> runList = new ArrayList<Integer>();
-        for(int i = 0; i < fieldSize; i++){
-            runList.add(f.getCard(i).getValue());
-        }
+        for(int i = 0; i < fieldSize; i++) runList.add(f.getCard(i).getValue());
+        
+        int maxRunLength = 1;
         ArrayList<Integer> sortRunList = new ArrayList<Integer>();
-        int runLength = 1;
-        int cap = fieldSize - 3;
-        //check the first three elements are a run
-        for(int i = fieldSize - 1; i > cap; i--){
-            sortRunList.add(runList.get(i));
-        }
+        for(int i = fieldSize - 1; i >= fieldSize - 3; i--) sortRunList.add(runList.get(i));
+        
         Collections.sort(sortRunList);
-        for(int i = 0; i < sortRunList.size() - 1; i++){
-            System.out.println(sortRunList);
-            if(sortRunList.get(i) + 1 == sortRunList.get(i + 1)){
-                runLength++;
-            } 
-            else{break;}
-        }
-        //continously add to list until a run is not valid
-        while(cap + 1 < fieldSize){
-            sortRunList.add(runList.get(cap + 1));
+        int currRunLength = scanRun(sortRunList);
+        if(currRunLength > maxRunLength) maxRunLength = currRunLength;
+        
+        while(sortRunList.size() < fieldSize){
+            sortRunList.add(runList.get(runList.size() - sortRunList.size() - 1));
             Collections.sort(sortRunList);
-            for(int i = 0; i < sortRunList.size(); i++){
-                System.out.println(sortRunList);
-                if(sortRunList.get(i) + 1 == sortRunList.get(i + 1)){
-                    runLength++;
-                } 
-                else{break;}
-            }
-            cap++;
+            currRunLength = scanRun(sortRunList);
+            if(currRunLength > maxRunLength) maxRunLength = currRunLength;
         }
-        if(runLength >= 3) return runLength;
+        
+        if(maxRunLength >= 3) return maxRunLength;
         return 0;
+    }
+    
+    private static int scanRun(ArrayList<Integer> run){
+        int runLength = 1;
+        for(int i = 0; i < run.size() - 1; i++){
+            if(run.get(i) + 1 == run.get(i + 1)) runLength++;
+            else return 0;
+        }
+        return runLength;
     }
     
     public static boolean thirtyOne(Field f){
