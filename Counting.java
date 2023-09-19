@@ -115,31 +115,49 @@ public class Counting{
             int choice = r.nextInt(4);
             return o.get(choice);
         }
-        int highScore = 0;
-        int highScoreInd = 0;
-        for(int i = highScoreInd; i < o.size(); i++){
+        int maxScore = 0;
+        int scoreInd = 0;
+        for(int i = scoreInd; i < o.size() - 1; i++){
+            int currScore = 0;
             Card oppChoice = o.get(i);
             f.addCard(oppChoice);
             if(overThirtyOne(f)){
                 f.deleteLastCard();
                 continue;
             }
-            else if(pairsCounting(f) + runsCounting(f) > 0 || fifteen(f) || thirtyOne(f)){
-                //
+            currScore = opponentPointCountCheck(f);
+            if(currScore > maxScore){
+                maxScore = currScore;
+                scoreInd = i;
             }
         }
+        return o.get(scoreInd);
+    }
+    
+    private static int opponentPointCountCheck(Field f){
+        int points = 0;
+        int pair = pairsCounting(f);
+        int run = runsCounting(f);
+        boolean fifteenCheck = fifteen(f);
+        boolean thirtyOneCheck = thirtyOneCheck(f);
+        
+        if(fifteenCheck) points += 2;
+        if(thirtyOneCheck) points += 2;
+        points += pair;
+        points += run;
+        return points;
     }
     
     public static boolean opponentSaysGo(Field f, ArrayList<Card> o){
-        for(int i = highScoreInd; i < o.size(); i++){
+        for(int i = 0; i < o.size(); i++){
             Card oppChoice = o.get(i);
             f.addCard(oppChoice);
-            if(overThirtyOne(f)){
+            if(!overThirtyOne(f)){
                 f.deleteLastCard();
-                return true;
+                return false;
             }
             f.deleteLastCard();
-            return false;
+        return true;
     }
     
     public static int pointsCheck(Field field, String player){
