@@ -1,72 +1,84 @@
 import java.util.*;
 import java.util.Random;
-import java.lang.Math;
+
+
 public class Counting{
     private static boolean gameEnd = false;
-    private static Field field = new Field();
     
     public static void counting(ArrayList<Card> playerHandCounting, ArrayList<Card> opponentHandCounting, int player){
+        Field field = new Field();
         Scanner s = new Scanner(System.in);
         ArrayList<Card> playerHand = playerHandCounting;
         ArrayList<Card> opponentHand = opponentHandCounting;
-        boolean oppGoesFirst = true;
+        
+        boolean doesPlayerSayGo = false;
+        boolean doesOppSayGo = false;
         //player is dealer
         if(player == 0){
-            boolean doesPlayerSayGo = false;
-            boolean doesOppSayGo = false;
+            boolean oppGoesFirst = true;
             while(!isCountingDone(playerHand, opponentHand)){
                 //opp turn
-                System.out.println("Opponent's turn.")
+                System.out.println("Opponent's turn.");
                 doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
                 oppGoesFirst = false;
-                if(isGameEnd()) break;
+                System.out.println("Field Total: " + field.getSum());
+                field.printField();
+                //if(isGameEnd()) break;
                 
                 //player turn
-                doesPlayerSayGo = playerTurn(f, playerHand);
-                if(isGameEnd()) break;
+                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
+                field.printField();
+                //if(isGameEnd()) break;
             }
         }
         //player is non-dealer
         if(player == 1){
-            boolean doesPlayerSayGo = false;
-            oppGoesFirst = false;
+            boolean oppGoesFirst = false;
             while(!isCountingDone(playerHand, opponentHand)){
                 //player turn
-                doesPlayerSayGo = playerTurn(f, playerHand);
-                if(isGameEnd()) break;
+                System.out.println("Field Total: " + field.getSum());
+                field.printField();
+                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
+                //if(isGameEnd()) break;
                 //opp turn
-                opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
-                if(isGameEnd()) break;
+                System.out.println("Opponent's turn.");
+                doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
+                //if(isGameEnd()) break;
             }
         }
     }
     
     public static boolean opponentTurn(Field f, ArrayList<Card> opponentHand, boolean doesPlayerSayGo, boolean oppGoesFirst){
         //check if opp can play a card
-        boolean oppGo = opponentSaysGo(f, opponentHand);
+        boolean oppGo = saysGo(f, opponentHand);
         if(!oppGo){
             //has a playable card, determine optimal card unless first play
-            Card oppChoice = opponentCardChoice(field, opponentHand, oppGoesFirst);
-            oppGoesFirst = false;
+            Card oppChoice = opponentCardChoice(f, opponentHand, oppGoesFirst);
+            f.addCard(oppChoice);
+            System.out.println("Opponent played " + oppChoice);
+            pointsCheck(f, "Opponent");
             //score points and check game status
             opponentHand.remove(oppChoice);
-            System.out.println("Opponent played" + oppChoice);
-            GameDisplay.setOpponentTotalScore(pointsCheck(f,"Opponent"));
+            //GameDisplay.setOpponentTotalScore(pointsCheck(f,"Opponent"));
+            return false;
         }
         //Opponent gets a go from player and can play a card
         else if(doesPlayerSayGo && !oppGo){
-            Card oppChoice = opponentCardChoice(field, opponentHand, oppGoesFirst);
+            Card oppChoice = opponentCardChoice(f, opponentHand, oppGoesFirst);
             opponentHand.remove(oppChoice);
             System.out.println("Opponent played" + oppChoice);
-            GameDisplay.setOpponentTotalScore(pointsCheck(f,"Opponent"));
+            return false;
+            //GameDisplay.setOpponentTotalScore(pointsCheck(f,"Opponent"));
         }
         //Opponent gets a go from player but cant play a card
         else if(doesPlayerSayGo && oppGo){
             System.out.println("Opponent Scores 1 point for a go.");
-            GameDisplay.setOpponentTotalScore(1));
+            f.clearField();
+            return false;
+            //GameDisplay.setOpponentTotalScore(1));
         }
         //opponent says go
-        else if(oppGo)){
+        else if(oppGo){
             System.out.println("Opponent says Go.");
             return true;
         }
@@ -75,24 +87,46 @@ public class Counting{
     
     public static boolean playerTurn(Field f, ArrayList<Card> playerHand, boolean oppSayGo, Scanner s){
         //player makes choice
+        System.out.println("Player Turn");
         while(true){
             //ToDo make method to handle player choice in counting
-            playerChoice = GameDisplay.promptNumberReadLine(s, "Play a card or go" + "\n" + "Dealer Hand: " + "\n" + Deck.toString(playerHand), playerHand.size()) - 1;
+            int handIndex = 0;
+            String playerChoice = playerInput(s, playerHand);
+            //format choice to an int if possible
+            try {
+                handIndex = Integer.parseInt(playerChoice) - 1;
+                if(playerHand.size() - 1 < handIndex || handIndex < -1){
+                    System.out.println("Invalid entry");
+                    continue;
+                }
+            } catch(NumberFormatException e) {
+                System.out.println("Invalid entry.");
+                continue;
+            }
             //player says go return to switch to opp turn
-            if(playerChoice == -1){
+            if(handIndex == -1){
+                if(!saysGo(f, playerHand)){
+                    System.out.println("Cards available to play.");
+                    continue;
+                }
+                if(oppSayGo){
+                    System.out.println("Player Scores 1 point for a go.");
+                    f.clearField();
+                    return false;
+                }
                 return true;
             }
             //no go, player plays a card, check validity
-            playerCard = playerHand.get(playerChoice)
-            field.addCard(playerCard);
+            Card playerCard = playerHand.get(handIndex);
+            f.addCard(playerCard);
             if(overThirtyOne(f)){
-                field.deleteLastCard();
+                f.deleteLastCard();
                 System.out.println("Invalid play.");
-                continue
+                continue;
             }
-            //add card to field, score points, update game status
             playerHand.remove(playerCard);
-            GameDisplay.setPlayerTotalScore(pointsCheck(field, "You"));
+            pointsCheck(f, "You");
+            //GameDisplay.setPlayerTotalScore(pointsCheck(field, "You"));
             return false;
         }
     }
@@ -110,7 +144,8 @@ public class Counting{
 
     public static Card opponentCardChoice(Field f, ArrayList<Card> o, boolean playFirst){
         //chose a random card if they play first
-        if(o.size() == 4 && playFirst){
+        
+        if(playFirst){
             Random r = new Random();
             int choice = r.nextInt(4);
             return o.get(choice);
@@ -130,6 +165,7 @@ public class Counting{
                 maxScore = currScore;
                 scoreInd = i;
             }
+            f.deleteLastCard();
         }
         return o.get(scoreInd);
     }
@@ -139,7 +175,7 @@ public class Counting{
         int pair = pairsCounting(f);
         int run = runsCounting(f);
         boolean fifteenCheck = fifteen(f);
-        boolean thirtyOneCheck = thirtyOneCheck(f);
+        boolean thirtyOneCheck = thirtyOne(f);
         
         if(fifteenCheck) points += 2;
         if(thirtyOneCheck) points += 2;
@@ -148,7 +184,7 @@ public class Counting{
         return points;
     }
     
-    public static boolean opponentSaysGo(Field f, ArrayList<Card> o){
+    public static boolean saysGo(Field f, ArrayList<Card> o){
         for(int i = 0; i < o.size(); i++){
             Card oppChoice = o.get(i);
             f.addCard(oppChoice);
@@ -185,6 +221,7 @@ public class Counting{
         return score + pairsScore + runsScore;
     }
     
+    /*
     public static boolean isGameEnd(){
         if(GameDisplay.getOpponentTotalScore() > 120){
             gameEnd = true;
@@ -196,6 +233,7 @@ public class Counting{
         }
         return gameEnd;
     }
+    */
 
     public static int pairsCounting(Field f){
         int score = 0;
@@ -237,6 +275,12 @@ public class Counting{
         
         if(maxRunLength >= 3) return maxRunLength;
         return 0;
+    }
+    
+    public static String playerInput(Scanner s, ArrayList<Card> h){
+        System.out.println("Play a card or press 0 for a go." + "\n" + "Player Hand: " + "\n" + Deck.toString(h));
+        String playerSelection = s.next();
+        return playerSelection;
     }
     
     private static int scanRun(ArrayList<Integer> run){
