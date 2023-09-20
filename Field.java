@@ -39,8 +39,9 @@ public class Field {
     
     public void printField() {
         FieldNode node = head;
+        System.out.println("Field Total: " + getSum());
         while (node != null) {
-            System.out.print(node.card + " ");
+            System.out.print(node.card + "\n");
             node = node.next;
         }
     }
@@ -97,19 +98,12 @@ public class Field {
         int sum = 0;
     
         while (current != null) {
-            sum += current.card.getValue();
+            if(current.card.getValue() > 10) sum += 10; 
+            else sum += current.card.getValue();
             current = current.next;
         }
     
         return sum;
-    }
-
-    public Card getPreviousCard(FieldNode node) {
-        if (node != null && node.prev != null) {
-            return node.prev.card;
-        } else {
-            throw new NoSuchElementException();
-        }
     }
     
     public void deleteLastCard() {
