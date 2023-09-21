@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.Arrays;
 import java.util.Random;
 
 public class Deck{
@@ -58,24 +57,6 @@ public class Deck{
         return a.get(r.nextInt(40));
     } 
     
-    public static void handValues(ArrayList<Integer> valueOutput, ArrayList<Card> handInput){
-        for(Card c : handInput){
-            int cardValue = c.getValue();
-            if(cardValue >= 10){
-                valueOutput.add(10);
-            }
-            else{
-                valueOutput.add(cardValue);
-            }
-        }
-    }
-    
-    public static void handValuesForRuns(ArrayList<Integer> valueOutput, ArrayList<Card> handInput){
-        for(Card c : handInput){
-            int cardValue = c.getValue();
-            valueOutput.add(cardValue);
-        }
-    }
 
     public static String toString(ArrayList<Card> a){
         String hand = "";
