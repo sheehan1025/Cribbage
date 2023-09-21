@@ -13,21 +13,23 @@ public class Counting{
         
         boolean doesPlayerSayGo = false;
         boolean doesOppSayGo = false;
+        boolean playerLastCard = false;
         //player is dealer
         if(player == 0){
             boolean oppGoesFirst = true;
             while(!isCountingDone(playerHand, opponentHand)){
                 //opp turn
                 System.out.println("Opponent's turn.");
-                doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
+                if(isCardAvailable(opponentHand)) doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
+                else doesOppSayGo = true;
                 oppGoesFirst = false;
-                System.out.println("Field Total: " + field.getSum());
-                field.printField();
+                if(!isCardAvailable(opponentHand) && isCardAvailable(playerHand)) playerLastCard = true;
                 //if(isGameEnd()) break;
                 
                 //player turn
-                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
                 field.printField();
+                if(isCardAvailable(playerHand)) doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
+                else doesPlayerSayGo = true;
                 //if(isGameEnd()) break;
             }
         }
@@ -36,16 +38,19 @@ public class Counting{
             boolean oppGoesFirst = false;
             while(!isCountingDone(playerHand, opponentHand)){
                 //player turn
-                System.out.println("Field Total: " + field.getSum());
                 field.printField();
-                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
+                if(isCardAvailable(playerHand)) doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
+                else doesPlayerSayGo = true;
                 //if(isGameEnd()) break;
                 //opp turn
                 System.out.println("Opponent's turn.");
                 doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
+                if(!isCardAvailable(opponentHand) && isCardAvailable(playerHand)) playerLastCard = true;
                 //if(isGameEnd()) break;
             }
         }
+        if(playerLastCard) System.out.println("You scored 1 point for last card.");
+        else System.out.println("Opponent scored 1 point for last card.");
     }
     
     public static boolean opponentTurn(Field f, ArrayList<Card> opponentHand, boolean doesPlayerSayGo, boolean oppGoesFirst){
@@ -89,7 +94,6 @@ public class Counting{
         //player makes choice
         System.out.println("Player Turn");
         while(true){
-            //ToDo make method to handle player choice in counting
             int handIndex = 0;
             String playerChoice = playerInput(s, playerHand);
             //format choice to an int if possible
@@ -103,7 +107,7 @@ public class Counting{
                 System.out.println("Invalid entry.");
                 continue;
             }
-            //player says go return to switch to opp turn
+            //player says go
             if(handIndex == -1){
                 if(!saysGo(f, playerHand)){
                     System.out.println("Cards available to play.");
@@ -131,6 +135,7 @@ public class Counting{
         }
     }
     
+    
     public static boolean isCardAvailable(ArrayList<Card> hand){
         return hand.size() > 0;
     }
@@ -144,14 +149,15 @@ public class Counting{
 
     public static Card opponentCardChoice(Field f, ArrayList<Card> o, boolean playFirst){
         //chose a random card if they play first
-        
+        Random r = new Random();
         if(playFirst){
-            Random r = new Random();
             int choice = r.nextInt(4);
             return o.get(choice);
         }
+        //deteremine what card will score the most points
         int maxScore = 0;
         int scoreInd = 0;
+        ArrayList<Card> validCards = new ArrayList<Card>();
         for(int i = scoreInd; i < o.size() - 1; i++){
             int currScore = 0;
             Card oppChoice = o.get(i);
@@ -165,7 +171,13 @@ public class Counting{
                 maxScore = currScore;
                 scoreInd = i;
             }
+            validCards.add(oppChoice);
             f.deleteLastCard();
+        }
+        //chose a random card that can be played if no points possible
+        if(maxScore == 0 && validCards.size() > 0){
+            int n = r.nextInt(validCards.size());
+            return o.get(n);
         }
         return o.get(scoreInd);
     }
