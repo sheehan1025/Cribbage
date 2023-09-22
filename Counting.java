@@ -25,7 +25,7 @@ public class Counting{
                 //if(isGameEnd()) break;
                 //player turn
                 field.printField();
-                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
+                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo);
                 //if(isGameEnd()) break;
             }
         }
@@ -35,7 +35,7 @@ public class Counting{
             while(!isCountingDone(playerHand, opponentHand)){
                 //player turn
                 field.printField();
-                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
+                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo);
                 //if(isGameEnd()) break;
                 //opp turn
                 doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
@@ -279,7 +279,7 @@ public class Counting{
     }
     
     public static String playerInput(Scanner s, ArrayList<Card> h){
-        System.out.println("Play a card or press 0 for a go." + "\n" + "Player Hand: " + "\n" + Deck.toString(h));
+        System.out.println("Play a card or press 0 for a go." + "\n" + "Player Hand: " + "\n" + CribbageGame.printHand(h));
         String playerSelection = s.next();
         return playerSelection;
     }
