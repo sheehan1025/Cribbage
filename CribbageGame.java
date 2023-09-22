@@ -4,15 +4,27 @@ import java.util.concurrent.TimeUnit;
 
 
 public class CribbageGame{
-    private static ArrayList<Card> playerHand = new ArrayList<Card>();
-    private static ArrayList<Card> opponentHand = new ArrayList<Card>();
-    private static ArrayList<Card> crib = new ArrayList<Card>();
-    private static int playerTotalScore = 0;
-    private static int opponentTotalScore = 0;
-    private static boolean playerStarts = true;
-
+    private ArrayList<Card> playerHand = new ArrayList<Card>();
+    private ArrayList<Card> opponentHand = new ArrayList<Card>();
+    private ArrayList<Card> crib = new ArrayList<Card>();
+    private int playerTotalScore = 0;
+    private int opponentTotalScore = 0;
+    private boolean playerStarts = true;
+    private String playerName;
+    private String opponentName = "Opponent";
     
-    public static void runGame(){
+    public CribbageGame(){
+        setPlayerName();
+        runGame();
+    }
+    
+    public void setPlayerName(){
+        Scanner s = new Scanner(System.in);
+        System.out.println("Please enter your name: ");
+        playerName = s.next();
+    }
+    
+    public void runGame(){
         Deck deck = new Deck();
         boolean isPlayerDealer = playerStarts;
         Scoring nibsScoring = new Scoring();
@@ -20,7 +32,7 @@ public class CribbageGame{
             startRound(deck);
 
             //crib placement
-            cribPlacement(playerHand, opponentHand, isPlayerDealer);
+            cribPlacement(getPlayerHand(), getOpponentHand(), isPlayerDealer);
             
             //reveal top card after crib placements
             Card topCard = deck.getTopCard();
@@ -35,17 +47,14 @@ public class CribbageGame{
             if(statusCheck()) break;
             
             //counting round
-            startCountingRound(playerHand, opponentHand, isPlayerDealer);
+            startCountingRound(getPlayerHand(), getOpponentHand(), isPlayerDealer);
             if(statusCheck()) break;
             
             //Scoring round
-            playerHand.add(topCard);
-            opponentHand.add(topCard);
-            crib.add(topCard);
             System.out.println("Now scoring hand and crib points." + "\n");
             wait(3000);
             
-            scoringRound(playerHand, opponentHand, crib, topCard, isPlayerDealer);
+            scoringRound(getPlayerHand(), getOpponentHand(), getCrib(), topCard, isPlayerDealer);
             if(statusCheck()) break;
             
             resetRound(); //ToDo fix reset round to move cards from hands back to deck and shuffle
@@ -60,36 +69,50 @@ public class CribbageGame{
         gameEnd();
     }
     
-    public static void scoringRound(ArrayList<Card> pHand, ArrayList<Card> oHand, ArrayList<Card> cHand, Card top,boolean isPlayerDealer){
+    public void scoringRound(ArrayList<Card> pHand, ArrayList<Card> oHand, ArrayList<Card> cHand, Card top, boolean isPlayerDealer){
+        //add top card to hands and crib for scoring
+        getPlayerHand().add(top);
+        getOpponentHand().add(top);
+        getCrib().add(top);
         //non dealer score points first
 
         //after scoring points check if over 120 return before scoring any additional points
         if(isPlayerDealer){
-            increaseOpponentTotalScore(handScore(oHand, top));
+            System.out.println("Scoring Opponent's hand:");
+            increaseOpponentTotalScore(handScore(oHand, top, opponentName));
+            System.out.println(printHand(oHand));
             if(statusCheck()) return;
-
-            increasePlayerTotalScore(handScore(pHand, top));
+            
+            System.out.println("Scoring Player's hand:");
+            increasePlayerTotalScore(handScore(pHand, top, playerName));
             if(statusCheck()) return;
-
-            increasePlayerTotalScore(handScore(cHand, top));
+            
+            System.out.println("Scoring Player's crib:");
+            increasePlayerTotalScore(handScore(cHand, top, playerName));
+            System.out.println(printHand(cHand));
         }
         else{
-            increasePlayerTotalScore(handScore(pHand, top));
+            System.out.println("Scoring Player's hand:");
+            increasePlayerTotalScore(handScore(pHand, top, playerName));
             if(statusCheck()) return;
-
-            increaseOpponentTotalScore(handScore(oHand, top));
+            
+            System.out.println("Scoring Opponent's hand:");
+            increaseOpponentTotalScore(handScore(oHand, top, opponentName));
+            printHand(oHand);
             if(statusCheck()) return;
-
-            increaseOpponentTotalScore(handScore(cHand, top));
+            
+            System.out.println("Scoring Opponent's crib:");
+            increaseOpponentTotalScore(handScore(cHand, top, opponentName));
+            printHand(cHand);
         }
     }
 
-    public static int handScore(ArrayList<Card> hand, Card top){
-        Scoring score = new Scoring(hand);
+    public int handScore(ArrayList<Card> hand, Card top, String name){
+        Scoring score = new Scoring(hand, name);
         return score.totalScore(top);
     }
 
-    public static void cribPlacement(ArrayList<Card> pHand, ArrayList<Card> oHand, boolean isPlayerDealer){
+    public void cribPlacement(ArrayList<Card> pHand, ArrayList<Card> oHand, boolean isPlayerDealer){
         if(isPlayerDealer){
             System.out.println("You are the dealer, choose cards for your crib.");
         }
@@ -106,10 +129,10 @@ public class CribbageGame{
         
     }
     
-    public static ArrayList<Card> playerCribChoice(ArrayList<Card> hand){
+    public ArrayList<Card> playerCribChoice(ArrayList<Card> hand){
         Scanner s = new Scanner(System.in);
         ArrayList<Card> cribCards = new ArrayList<Card>();
-        while(cribCards.size() < 3){
+        while(cribCards.size() < 2){
             System.out.println("Select a card for the crib." + "\n" + "Player Hand: " + "\n" + printHand(hand));
             try{
                 int playerSelection = s.nextInt() - 1;
@@ -124,15 +147,18 @@ public class CribbageGame{
                 System.out.println("Invalid entry");
             }
         }
-        s.close();
         return cribCards;
     }
     
-    public static ArrayList<Card> opponentCribChoice(ArrayList<Card> hand){
-        return null;
+    public ArrayList<Card> opponentCribChoice(ArrayList<Card> hand){
+        ArrayList<Card> cribCards = new ArrayList<Card>();
+        //place holder for opponent crib choice
+        cribCards.add(hand.get(0));
+        cribCards.add(hand.get(0));
+        return cribCards;
     }
     
-    public static void startCountingRound(ArrayList<Card> pHand, ArrayList<Card> oHand, boolean isPlayerDealer){
+    public void startCountingRound(ArrayList<Card> pHand, ArrayList<Card> oHand, boolean isPlayerDealer){
         ArrayList<Card> playerHandForCounting = new ArrayList<Card>();
         ArrayList<Card> opponentHandForCounting = new ArrayList<Card>();
         for(int i = 0; i < playerHand.size(); i++){
@@ -147,66 +173,71 @@ public class CribbageGame{
         else{
             System.out.println("You are not the dealer, you will play your card first" + "\n");
         }
-        Counting.counting(playerHandForCounting, opponentHandForCounting, isPlayerDealer);
+        Counting counting =  new Counting(playerName, this);
+        counting.countingRound(playerHandForCounting, opponentHandForCounting, isPlayerDealer);
     }
     
     
-    public static void startRound(Deck d){
+    public void startRound(Deck d){
         System.out.println("Player overall score: " + playerTotalScore);
         System.out.println("Opponent overall score: " + opponentTotalScore + "\n");
         playerHand = d.getHand();
         opponentHand = d.getHand();
     }
 	
-	public static void resetRound(){
+	public void resetRound(){
 	    playerHand.clear();
         opponentHand.clear();
         crib.clear();
 	}
 	
 
-    public static void gameEnd(){
+    public void gameEnd(){
         if(playerWin()){
             //check for skunk, double skunk, victory message
         }
     }
 
-    public static boolean statusCheck(){
+    public boolean statusCheck(){
         return playerWin() || opponentWin();
     }
 
-    public static boolean playerWin(){
+    public boolean playerWin(){
         return getPlayerTotalScore() > 120;
     }
 
-    public static boolean opponentWin(){
+    public boolean opponentWin(){
         return getOpponentTotalScore() > 120;
     }
 
-	public static ArrayList<Card> getPlayerHand(){
+	public ArrayList<Card> getPlayerHand(){
 	    return playerHand;
 	}
 	
-	public static ArrayList<Card> getOpponentHand(){
+	public ArrayList<Card> getOpponentHand(){
 	    return opponentHand;
 	}
 	
-	public static int getPlayerTotalScore(){
-	    return playerTotalScore;
+	public ArrayList<Card> getCrib(){
+	    return crib;
 	}
 	
-	public static int getOpponentTotalScore(){
-	    return opponentTotalScore;
+	public int getPlayerTotalScore(){
+	    return this.playerTotalScore;
 	}
 	
-	public static void increasePlayerTotalScore(int score){
-	    playerTotalScore += score;
-	}
-	public static void increaseOpponentTotalScore(int score){
-	    opponentTotalScore += score;
+	public int getOpponentTotalScore(){
+	    return this.opponentTotalScore;
 	}
 	
-	public static void wait(int ms){
+	public void increasePlayerTotalScore(int score){
+	    this.playerTotalScore += score;
+	}
+	public void increaseOpponentTotalScore(int score){
+	    this.opponentTotalScore += score;
+	}
+	
+	public void wait(int ms){
         try{
             Thread.sleep(ms);
         }
