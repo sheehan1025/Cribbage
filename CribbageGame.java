@@ -4,61 +4,30 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 
-public class GameDisplay{
-    private static Scanner s = new Scanner(System.in);
+public class CribbageGame{
     private static ArrayList<Card> playerHand = new ArrayList<Card>();
-    private static ArrayList<Card> opposingHand = new ArrayList<Card>();
+    private static ArrayList<Card> opponentHand = new ArrayList<Card>();
     private static ArrayList<Card> crib = new ArrayList<Card>();
-    private static ArrayList<Integer> playerValues = new ArrayList<Integer>();
-    private static ArrayList<Integer> playerValuesForRuns = new ArrayList<Integer>();
-    private static ArrayList<Integer> cribValues = new ArrayList<Integer>();
-    private static ArrayList<Integer> cribValuesForRuns = new ArrayList<Integer>();
-    private static ArrayList<Integer> opposingValues = new ArrayList<Integer>();
-    private static ArrayList<Integer> opposingValuesForRuns = new ArrayList<Integer>();
     private static int playerTotalScore = 0;
     private static int opponentTotalScore = 0;
     private static Random r = new Random();
-    private static int player = r.nextInt(2);
+    private static boolean playerStarts = true;
+
     
-    public static void main(String[] args){
+    public static void runGame(){
+        Deck deck = new Deck();
+        boolean isPlayerDealer = playerStarts;
         while(true){
-            int playerScore = 0;
-            int opposingScore = 0;
-            int cribScore = 0;
-            System.out.println("Player overall score: " + playerTotalScore);
-            System.out.println("Opponent overall score: " + opponentTotalScore + "\n");
-            Deck deck = new Deck();
-            if(player == 0){
-                playerHand = deck.getDealerHand();
-                opposingHand = deck.getNonDealerHand();
-            }
-            else{
-                playerHand = deck.getNonDealerHand();
-                opposingHand = deck.getDealerHand();
-            }
+            int playerRoundScore = 0;
+            int opponentRoundScore = 0;
+            int cribRoundScore = 0;
+            
+            startRound();
             //crib placement
-            if(player == 0){
-                System.out.println("You are the dealer, choose cards for your crib.");
-            }
-            else{
-                System.out.println("You are not the dealer, choose cards for your opponent's crib.");
-            }
-            System.out.println("Player Hand: " + "\n" + Deck.toString(playerHand));
-            int cribChoice = promptNumberReadLine(s, "First card for crib", playerHand.size());
-            crib.add(playerHand.get(cribChoice - 1));
-            playerHand.remove(cribChoice - 1);
-            System.out.println("Player Hand: " + "\n" + Deck.toString(playerHand));
-            int cribChoice2 = promptNumberReadLine(s, "Second card for crib", playerHand.size());
-            crib.add(playerHand.get(cribChoice2 - 1));
-            playerHand.remove(cribChoice2 - 1);
-            int opponentCribChoice = r.nextInt(6);
-            crib.add(opposingHand.get(opponentCribChoice));
-            opposingHand.remove(opponentCribChoice);
-            opponentCribChoice = r.nextInt(5);
-            crib.add(opposingHand.get(opponentCribChoice));
-            opposingHand.remove(opponentCribChoice);
-            Deck.removeCards(deck.getDeck());
-            Card topCard = Deck.getTopCard(deck.getDeck());
+            cribPlacement(playerHand, opponentHand, isPlayerDealer);
+            
+            
+            Card topCard = deck.getTopCard();
             System.out.println("====================================");
             System.out.print("Top card: " + topCard.toString() + "\n");
             System.out.println("====================================");
@@ -78,30 +47,9 @@ public class GameDisplay{
             }
             
             //counting round
-            ArrayList<Card> dealerHandForCounting = new ArrayList<Card>();
-            ArrayList<Card> nonDealerHandForCounting = new ArrayList<Card>();
-            for(int i = 0; i < playerHand.size(); i++){
-                if(player == 0){
-                    dealerHandForCounting.add(playerHand.get(i));
-                    nonDealerHandForCounting.add(opposingHand.get(i));
-                }
-                else{
-                    dealerHandForCounting.add(opposingHand.get(i));
-                    nonDealerHandForCounting.add(playerHand.get(i));
-                }
-            }
-            System.out.println("Entering Counting Round.");
-            wait(3000);
-            if(player == 0){
-                System.out.println("You are the dealer, the opponent will play the first card" + "\n");
-            }
-            else{
-                System.out.println("You are not the dealer, you will play your card first" + "\n");
-            }
-            Counting.counting(dealerHandForCounting, nonDealerHandForCounting, player);
-            if(Counting.getGameEnd() == true){
-                break;
-            }
+            startCountingRound(playerHand, opponentHand, isPlayerDealer);
+            
+            //TODO end game if a player scored enough points to end the game
             
             //Scoring round
             playerHand.add(topCard);
@@ -247,55 +195,82 @@ public class GameDisplay{
         }
     }
     
-    public static int promptNumberReadLine(Scanner s, String prompt, int max) {
-		int value = 0;
-		while (true) {
-			System.out.print(prompt);
-			if(s.hasNext("go") || s.hasNext("Go")){
-			    s.next();
-			    return -1;
-			}
-			if(s.hasNext("yes") || s.hasNext("Yes")){
-			    s.next();
-			    return 0;
-			}
-			if(s.hasNext("no") || s.hasNext("No")){
-			    s.next();
-			    return -1;
-			}
-			else if (!s.hasNextInt()) {
-				System.out.println("That was not a valid number! Please try again.");
-				s.next();
-				continue;
-			}
-			value = s.nextInt();
-			if (value < 0 || value > max) {
-				System.out.println("That was not a valid number! Please try again.");
-				continue;
-			}
-			break;
-		}
-		return value;
-	}
+    public static void cribPlacement(ArrayList<Card> pHand, ArrayList<Cards> oHand, boolean isPlayerDealer){
+        if(isPlayerDealer){
+            System.out.println("You are the dealer, choose cards for your crib.");
+        }
+        else{
+            System.out.println("You are not the dealer, choose cards for your opponent's crib.");
+        }
+        //player chooses cards for crib
+        ArrayList<Card> cribChoicePlayer = playerCribChoice(pHand)
+        //opponent chooses cards for crib
+        ArrayList<Card> cribChoiceOpponent = opponentCribChoice(oHand);
+    }
+    
+    
+    public ArrayList<Card> playerCribChoice(ArrayList<Card> hand){
+        Scanner s = new Scanner(System.in);
+        ArrayList<Card> cribCards = new ArrayList<Card>();
+        while(cribCards.size() < 3){
+            System.out.println("Select a card for the crib." + "\n" + "Player Hand: " + "\n" + printHand(hand));
+            try{
+                int playerSelection = s.nextInt() - 1;
+                if(playerSelection < 0 || playerSelection > hand.size()){
+                    System.out.println("Invalid choice");
+                    continue;
+                }
+                cribCards.add(hand.get(playerSelection));
+                hand.remove(hand.get(playerSelection));
+            }
+            catch(Exception e){
+                System.out.println("Invalid entry");
+            }
+        }
+        s.close();
+        return cribCards;
+    }
+    
+    public ArrayList<Card> opponentCribChoice(ArrayList<Card> hand){
+        return null;
+    }
+    
+    public void startCountingRound(ArrayList<Card> pHand, ArrayList<Card> oHand, boolean isPlayerDealer){
+        ArrayList<Card> playerHandForCounting = new ArrayList<Card>();
+        ArrayList<Card> opponentHandForCounting = new ArrayList<Card>();
+        for(int i = 0; i < playerHand.size(); i++){
+            playerHandForCounting.add(pHand.get(i));
+            opponentHandForCounting.add(oHand.get(i));
+        }
+        System.out.println("Entering Counting Round.");
+        wait(3000);
+        if(isPlayerDealer){
+            System.out.println("You are the dealer, the opponent will play the first card" + "\n");
+        }
+        else{
+            System.out.println("You are not the dealer, you will play your card first" + "\n");
+        }
+        Counting.counting(playerHandForCounting, opponentHandForCounting, isPlayerDealer);
+    }
+    
+    
+    public static void startRound(){
+        System.out.println("Player overall score: " + playerTotalScore);
+        System.out.println("Opponent overall score: " + opponentTotalScore + "\n");
+        playerHand = deck.getHand();
+        opposingHand = deck.getHand();
+    }
 	
 	public static void resetRound(){
 	    playerHand.clear();
         opposingHand.clear();
         crib.clear();
-        playerValues.clear();
-        playerValuesForRuns.clear();
-        cribValues.clear();
-        cribValuesForRuns.clear();
-        opposingValues.clear();
-        opposingValuesForRuns.clear();
 	}
 	
 	public static ArrayList<Card> getPlayerHand(){
 	    return playerHand;
 	}
-	public static ArrayList<Integer> getHandValues(ArrayList<Integer> a){
-	    return a;
-	}
+	
 	public static ArrayList<Card> getOpposingHand(){
 	    return opposingHand;
 	}
@@ -309,10 +284,10 @@ public class GameDisplay{
 	}
 	
 	public static void setPlayerTotalScore(int score){
-	    playerTotalScore = playerTotalScore + score;
+	    playerTotalScore += score;
 	}
 	public static void setOpponentTotalScore(int score){
-	    opponentTotalScore = opponentTotalScore + score;
+	    opponentTotalScore += score;
 	}
 	
 	public static void wait(int ms){
@@ -322,5 +297,13 @@ public class GameDisplay{
         catch(InterruptedException ex){
             Thread.currentThread().interrupt();
         }
+    }
+    
+    public static String printHand(ArrayList<Card> a){
+        String hand = "";
+        for(int i = 0; i < a.size(); i++){
+            hand += (i + 1) + ". " + a.get(i) + "\n";
+        }
+        return hand;
     }
 }
