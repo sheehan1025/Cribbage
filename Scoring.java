@@ -10,11 +10,13 @@ public class Scoring{
     }
 
     public Scoring(ArrayList<Card> hand){
+        //ToDo add player name attr to use when displaying points scored
         this.sortedHand = hand;
         sortHand(this.sortedHand);
     }
 
     public int totalScore(Card topCard){
+        //ToDo print scores for the different scoring possiblities
         int totScore = pairs(this.sortedHand);
         totScore += fifteens(this.sortedHand);
         totScore += flush(this.sortedHand);

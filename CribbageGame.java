@@ -36,8 +36,7 @@ public class CribbageGame{
             
             //counting round
             startCountingRound(playerHand, opponentHand, isPlayerDealer);
-            
-            //TODO end game if a player scored enough points to end the game
+            if(statusCheck()) break;
             
             //Scoring round
             playerHand.add(topCard);
@@ -47,10 +46,12 @@ public class CribbageGame{
             wait(3000);
             
             scoringRound(playerHand, opponentHand, crib, topCard, isPlayerDealer);
+            if(statusCheck()) break;
             
-            resetRound();
+            resetRound(); //ToDo fix reset round to move cards from hands back to deck and shuffle
             System.out.println("Starting new round.");
             System.out.println("===============================================");
+            
             //switch roles
             if(isPlayerDealer) isPlayerDealer = false;
             else isPlayerDealer = true;
@@ -61,8 +62,25 @@ public class CribbageGame{
     
     public static void scoringRound(ArrayList<Card> pHand, ArrayList<Card> oHand, ArrayList<Card> cHand, Card top,boolean isPlayerDealer){
         //non dealer score points first
-        if(isPlayerDealer){
 
+        //after scoring points check if over 120 return before scoring any additional points
+        if(isPlayerDealer){
+            increaseOpponentTotalScore(handScore(oHand, top));
+            if(statusCheck()) return;
+
+            increasePlayerTotalScore(handScore(pHand, top));
+            if(statusCheck()) return;
+
+            increasePlayerTotalScore(handScore(cHand, top));
+        }
+        else{
+            increasePlayerTotalScore(handScore(pHand, top));
+            if(statusCheck()) return;
+
+            increaseOpponentTotalScore(handScore(oHand, top));
+            if(statusCheck()) return;
+
+            increaseOpponentTotalScore(handScore(cHand, top));
         }
     }
 

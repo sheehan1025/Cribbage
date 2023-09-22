@@ -32,4 +32,5 @@ public class Deck{
         return cards.peek();
     } 
     
+    //ToDo add a shuffle method
 }
