@@ -20,7 +20,6 @@ public class Scoring{
         totScore += flush(this.sortedHand);
         totScore += runs(this.sortedHand);
         totScore += nobs(this.sortedHand, topCard);
-        totScore += nibs(topCard);
         return totScore;
     }
 
