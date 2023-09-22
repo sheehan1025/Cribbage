@@ -1,9 +1,6 @@
 import java.util.*;
 
 
-import java.util.*;
-
-
 public class Deck{
     private static Deque<Card> cards;
     
