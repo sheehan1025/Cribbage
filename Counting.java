@@ -5,6 +5,8 @@ import java.util.Random;
 public class Counting{
     private static boolean gameEnd = false;
     
+    //ToDo instance variable for total scores of both players
+    
     public static void counting(ArrayList<Card> playerHandCounting, ArrayList<Card> opponentHandCounting, boolean playerIsDealer){
         Field field = new Field();
         ArrayList<Card> playerHand = playerHandCounting;
@@ -221,20 +223,6 @@ public class Counting{
         } 
         return score + pairsScore + runsScore;
     }
-    
-    /*
-    public static boolean isGameEnd(){
-        if(GameDisplay.getOpponentTotalScore() > 120){
-            gameEnd = true;
-            return gameEnd;
-        }
-        if(GameDisplay.getPlayerTotalScore() > 120){
-            gameEnd = true;
-            return gameEnd;
-        }
-        return gameEnd;
-    }
-    */
 
     public static int pairsCounting(Field f){
         int score = 0;
