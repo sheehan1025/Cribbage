@@ -31,7 +31,7 @@ public class Deck{
         return hand;
     }
 
-    public static Card getTopCard(){
+    public Card getTopCard(){
         return cards.peek();
     } 
     
