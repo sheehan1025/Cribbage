@@ -5,9 +5,8 @@ import java.util.Random;
 public class Counting{
     private static boolean gameEnd = false;
     
-    public static void counting(ArrayList<Card> playerHandCounting, ArrayList<Card> opponentHandCounting, int player){
+    public static void counting(ArrayList<Card> playerHandCounting, ArrayList<Card> opponentHandCounting, boolean playerIsDealer){
         Field field = new Field();
-        Scanner s = new Scanner(System.in);
         ArrayList<Card> playerHand = playerHandCounting;
         ArrayList<Card> opponentHand = opponentHandCounting;
         
@@ -17,7 +16,7 @@ public class Counting{
         boolean oppGoesFirst = true;
        
         //player is dealer
-        if(player == 0){
+        if(playerIsDealer){
             while(!isCountingDone(playerHand, opponentHand)){
                 //opp turn
                 doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
@@ -31,7 +30,7 @@ public class Counting{
             }
         }
         //player is non-dealer
-        if(player == 1){
+        else{
             oppGoesFirst = false;
             while(!isCountingDone(playerHand, opponentHand)){
                 //player turn
@@ -78,8 +77,9 @@ public class Counting{
         return false;
     }
     
-    public static boolean playerTurn(Field f, ArrayList<Card> playerHand, boolean oppSayGo, Scanner s){
+    public static boolean playerTurn(Field f, ArrayList<Card> playerHand, boolean oppSayGo){
         //player makes choice
+        Scanner s = new Scanner(System.in);
         System.out.println("Player Turn");
         while(true){
             int handIndex = 0;
@@ -96,6 +96,7 @@ public class Counting{
                 continue;
             }
             //player says go
+            s.close();
             if(handIndex == -1){
                 if(!saysGo(f, playerHand)){
                     System.out.println("Cards available to play.");
