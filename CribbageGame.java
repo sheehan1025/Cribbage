@@ -25,10 +25,10 @@ public class CribbageGame{
     }
     
     public void runGame(){
-        Deck deck = new Deck();
         boolean isPlayerDealer = playerStarts;
         Scoring nibsScoring = new Scoring();
         while(true){
+	    Deck deck = new Deck();
             startRound(deck);
 
             //crib placement
