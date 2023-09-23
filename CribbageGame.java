@@ -154,7 +154,9 @@ public class CribbageGame{
         ArrayList<Card> cribCards = new ArrayList<Card>();
         //place holder for opponent crib choice
         cribCards.add(hand.get(0));
+        cribCards.remove(hand.get(0));
         cribCards.add(hand.get(0));
+        cribCards.remove(hand.get(0));
         return cribCards;
     }
     
@@ -210,34 +212,35 @@ public class CribbageGame{
         return getOpponentTotalScore() > 120;
     }
 
-	public ArrayList<Card> getPlayerHand(){
-	    return playerHand;
-	}
+    public ArrayList<Card> getPlayerHand(){
+	return playerHand;
+    }
 	
-	public ArrayList<Card> getOpponentHand(){
-	    return opponentHand;
-	}
+    public ArrayList<Card> getOpponentHand(){
+	return opponentHand;
+    }
 	
-	public ArrayList<Card> getCrib(){
-	    return crib;
-	}
+    public ArrayList<Card> getCrib(){
+	return crib;
+    }
 	
-	public int getPlayerTotalScore(){
-	    return this.playerTotalScore;
-	}
+    public int getPlayerTotalScore(){
+	return this.playerTotalScore;
+    }
 	
-	public int getOpponentTotalScore(){
-	    return this.opponentTotalScore;
-	}
+    public int getOpponentTotalScore(){
+	return this.opponentTotalScore;
+    }
 	
-	public void increasePlayerTotalScore(int score){
-	    this.playerTotalScore += score;
-	}
-	public void increaseOpponentTotalScore(int score){
-	    this.opponentTotalScore += score;
-	}
+    public void increasePlayerTotalScore(int score){
+	this.playerTotalScore += score;
+    }
+
+    public void increaseOpponentTotalScore(int score){
+	this.opponentTotalScore += score;
+    }
 	
-	public void wait(int ms){
+    public void wait(int ms){
         try{
             Thread.sleep(ms);
         }
