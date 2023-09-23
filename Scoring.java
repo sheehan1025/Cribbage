@@ -127,6 +127,7 @@ public class Scoring{
     }
     
     public int runs(ArrayList<Card> a){
+        //Todo consideration of a quad run
         int runCount = 0;
         int currRunCount = 1;
         boolean isDoubleRun = false;
