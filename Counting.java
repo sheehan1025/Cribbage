@@ -1,4 +1,5 @@
 import java.util.Random;
+import java.util.*;
 
 
 public class Counting{

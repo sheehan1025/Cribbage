@@ -16,23 +16,23 @@ public class Scoring{
     public int totalScore(Card topCard){
         int pairScore = pairs(this.sortedHand);
         if(pairScore > 0){
-            System.out.println(this.playerName + " scored " + pairScore + " points in pairs.")
+            System.out.println(this.playerName + " scored " + pairScore + " points in pairs.");
         }
         int fifteenScore = fifteens(this.sortedHand);
         if(fifteenScore > 0){
-            System.out.println(this.playerName + " scored " + fifteenScore + " points in fifteens.")
+            System.out.println(this.playerName + " scored " + fifteenScore + " points in fifteens.");
         }
         int flushScore = flush(this.sortedHand);
         if(flushScore > 0){
-            System.out.println(this.playerName + " scored a " + flushScore + " points flush.")
+            System.out.println(this.playerName + " scored a " + flushScore + " points flush.");
         }
         int runScore = runs(this.sortedHand);
         if(runScore > 0){
-            System.out.println(this.playerName + " scored " + runScore + " points in runs.")
+            System.out.println(this.playerName + " scored " + runScore + " points in runs.");
         }
         int nobScore = nobs(this.sortedHand, topCard);
         if(nobScore > 0){
-            System.out.println(this.playerName + " scored " + nobScore + " point for nobs.")
+            System.out.println(this.playerName + " scored " + nobScore + " point for nobs.");
         }
         return pairScore + fifteenScore + flushScore + runScore + nobScore;
     }
