@@ -42,8 +42,11 @@ public class CribbageGame{
             
             //dealer scores nibs points
             int nibsScore = nibsScoring.nibs(topCard);
-            if(isPlayerDealer) increasePlayerTotalScore(nibsScore);
-            else increaseOpponentTotalScore(nibsScore);
+            if(nibsScore > 0){
+                System.out.println("The dealer scored 2 points from a Jack top card.");
+                if(isPlayerDealer) increasePlayerTotalScore(nibsScore);
+                else increaseOpponentTotalScore(nibsScore);
+            }
             if(statusCheck()) break;
             
             //counting round
@@ -123,6 +126,7 @@ public class CribbageGame{
         ArrayList<Card> cribChoicePlayer = playerCribChoice(pHand);
         //opponent chooses cards for crib
         ArrayList<Card> cribChoiceOpponent = opponentCribChoice(oHand);
+        System.out.println("Opponent chose " + cribChoiceOpponent);
 
         for(Card c : cribChoicePlayer) crib.add(c);
         for(Card c : cribChoiceOpponent) crib.add(c);
@@ -154,9 +158,9 @@ public class CribbageGame{
         ArrayList<Card> cribCards = new ArrayList<Card>();
         //place holder for opponent crib choice
         cribCards.add(hand.get(0));
-        cribCards.remove(hand.get(0));
+        hand.remove(cribCards.get(0));
         cribCards.add(hand.get(0));
-        cribCards.remove(hand.get(0));
+        hand.remove(cribCards.get(0));
         return cribCards;
     }
     
@@ -213,31 +217,31 @@ public class CribbageGame{
     }
 
     public ArrayList<Card> getPlayerHand(){
-	return playerHand;
+	    return playerHand;
     }
 	
     public ArrayList<Card> getOpponentHand(){
-	return opponentHand;
+	    return opponentHand;
     }
 	
     public ArrayList<Card> getCrib(){
-	return crib;
+	    return crib;
     }
 	
     public int getPlayerTotalScore(){
-	return this.playerTotalScore;
+	    return this.playerTotalScore;
     }
 	
     public int getOpponentTotalScore(){
-	return this.opponentTotalScore;
+	    return this.opponentTotalScore;
     }
 	
     public void increasePlayerTotalScore(int score){
-	this.playerTotalScore += score;
+	    this.playerTotalScore += score;
     }
 
     public void increaseOpponentTotalScore(int score){
-	this.opponentTotalScore += score;
+	    this.opponentTotalScore += score;
     }
 	
     public void wait(int ms){
