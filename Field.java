@@ -1,5 +1,3 @@
-import java.util.NoSuchElementException;
-
 public class Field {
 
     FieldNode head;
@@ -39,11 +37,14 @@ public class Field {
     
     public void printField() {
         FieldNode node = head;
+        System.out.println("=================================================");
         System.out.println("Field Total: " + getSum());
+        System.out.println("-------------------------------------------------");
         while (node != null) {
             System.out.print(node.card + "\n");
             node = node.next;
         }
+        System.out.println("=================================================");
     }
 
     public void clearField() {

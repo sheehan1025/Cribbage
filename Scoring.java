@@ -4,38 +4,56 @@ import java.util.*;
 public class Scoring{
 
     private ArrayList<Card> sortedHand = new ArrayList<Card> ();
+    private String playerName;
 
-    public Scoring(){
+    public Scoring(){}
 
-    }
-
-    public Scoring(ArrayList<Card> hand){
-        this.sortedHand = hand;
-        sortHand(this.sortedHand);
+    public Scoring(ArrayList<Card> hand, String playerName){
+        this.playerName = playerName;
+        this.sortedHand = sortHand(hand);
     }
 
     public int totalScore(Card topCard){
-        int totScore = pairs(this.sortedHand);
-        totScore += fifteens(this.sortedHand);
-        totScore += flush(this.sortedHand);
-        totScore += runs(this.sortedHand);
-        totScore += nobs(this.sortedHand, topCard);
-        totScore += nibs(topCard);
-        return totScore;
+        int pairScore = pairs(this.sortedHand);
+        if(pairScore > 0){
+            System.out.println(this.playerName + " scored " + pairScore + " points in pairs.");
+        }
+        int fifteenScore = fifteens(this.sortedHand);
+        if(fifteenScore > 0){
+            System.out.println(this.playerName + " scored " + fifteenScore + " points in fifteens.");
+        }
+        int flushScore = flush(this.sortedHand);
+        if(flushScore > 0){
+            System.out.println(this.playerName + " scored a " + flushScore + " points flush.");
+        }
+        int runScore = runs(this.sortedHand);
+        if(runScore > 0){
+            System.out.println(this.playerName + " scored " + runScore + " points in runs.");
+        }
+        int nobScore = nobs(this.sortedHand, topCard);
+        if(nobScore > 0){
+            System.out.println(this.playerName + " scored " + nobScore + " point for nobs.");
+        }
+        return pairScore + fifteenScore + flushScore + runScore + nobScore;
     }
 
-    private void sortHand(ArrayList<Card> hand){
-        int n = hand.size();
+    private ArrayList<Card> sortHand(ArrayList<Card> hand){
+        ArrayList<Card> retList = new ArrayList<Card>();
+        for(Card c : hand){
+            retList.add(c);
+        }
+        int n = retList.size();
         for (int i = 1; i < n; ++i) {
-            int key = hand.get(i).getValue();
-            Card cardKey = hand.get(i);
+            int key = retList.get(i).getValue();
+            Card cardKey = retList.get(i);
             int j = i - 1;
-            while (j >= 0 && hand.get(j).getValue() > key) {
-                hand.set(j + 1, hand.get(j));
+            while (j >= 0 && retList.get(j).getValue() > key) {
+                retList.set(j + 1, retList.get(j));
                 j = j - 1;
             }
-            hand.set(j + 1, cardKey);
+            retList.set(j + 1, cardKey);
         }
+        return retList;
     }
 
     public int pairs(ArrayList<Card> a){
@@ -109,6 +127,7 @@ public class Scoring{
     }
     
     public int runs(ArrayList<Card> a){
+        //Todo consideration of a quad run
         int runCount = 0;
         int currRunCount = 1;
         boolean isDoubleRun = false;

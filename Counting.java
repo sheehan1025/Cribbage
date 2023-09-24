@@ -1,13 +1,18 @@
-import java.util.*;
 import java.util.Random;
+import java.util.*;
 
 
 public class Counting{
-    private static boolean gameEnd = false;
+    private String playerName;
+    private CribbageGame cribGame;
     
-    public static void counting(ArrayList<Card> playerHandCounting, ArrayList<Card> opponentHandCounting, int player){
+    public Counting(String playerName, CribbageGame cribGame){
+        this.playerName = playerName;
+        this.cribGame = cribGame;
+    }
+    
+    public void countingRound(ArrayList<Card> playerHandCounting, ArrayList<Card> opponentHandCounting, boolean playerIsDealer){
         Field field = new Field();
-        Scanner s = new Scanner(System.in);
         ArrayList<Card> playerHand = playerHandCounting;
         ArrayList<Card> opponentHand = opponentHandCounting;
         
@@ -17,38 +22,45 @@ public class Counting{
         boolean oppGoesFirst = true;
        
         //player is dealer
-        if(player == 0){
+        if(playerIsDealer){
             while(!isCountingDone(playerHand, opponentHand)){
                 //opp turn
                 doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
                 oppGoesFirst = false;
                 if(!isCardAvailable(opponentHand) && isCardAvailable(playerHand)) playerLastCard = true;
-                //if(isGameEnd()) break;
+                if(this.cribGame.statusCheck()) break;
                 //player turn
                 field.printField();
-                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
-                //if(isGameEnd()) break;
+                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo);
+                if(this.cribGame.statusCheck()) break;
             }
         }
         //player is non-dealer
-        if(player == 1){
+        else{
             oppGoesFirst = false;
             while(!isCountingDone(playerHand, opponentHand)){
                 //player turn
                 field.printField();
-                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo, s);
-                //if(isGameEnd()) break;
+                doesPlayerSayGo = playerTurn(field, playerHand, doesOppSayGo);
+                if(this.cribGame.statusCheck()) break;
                 //opp turn
                 doesOppSayGo = opponentTurn(field, opponentHand, doesPlayerSayGo, oppGoesFirst);
                 if(!isCardAvailable(opponentHand) && isCardAvailable(playerHand)) playerLastCard = true;
-                //if(isGameEnd()) break;
+                if(this.cribGame.statusCheck()) break;
             }
         }
-        if(playerLastCard) System.out.println("You scored 1 point for last card.");
-        else System.out.println("Opponent scored 1 point for last card.");
+        if(this.cribGame.statusCheck()) return;
+        if(playerLastCard){
+            System.out.println("You scored 1 point for last card.");
+            this.cribGame.increasePlayerTotalScore(1);
+        }
+        else{
+            System.out.println("Opponent scored 1 point for last card.");
+            this.cribGame.increaseOpponentTotalScore(1);
+        }
     }
     
-    public static boolean opponentTurn(Field f, ArrayList<Card> opponentHand, boolean doesPlayerSayGo, boolean oppGoesFirst){
+    public boolean opponentTurn(Field f, ArrayList<Card> opponentHand, boolean doesPlayerSayGo, boolean oppGoesFirst){
         //check if opp can play a card
         System.out.println("Opponent's turn.");
         boolean oppGo = saysGo(f, opponentHand);
@@ -57,18 +69,16 @@ public class Counting{
             Card oppChoice = opponentCardChoice(f, opponentHand, oppGoesFirst);
             f.addCard(oppChoice);
             System.out.println("Opponent played " + oppChoice);
-            pointsCheck(f, "Opponent");
-            //score points and check game status
+            this.cribGame.increaseOpponentTotalScore(pointsCheck(f, "Opponent"));
             opponentHand.remove(oppChoice);
-            //GameDisplay.setOpponentTotalScore(pointsCheck(f,"Opponent"));
             return false;
         }
         //Opponent gets a go from player but cant play a card
         else if(doesPlayerSayGo && oppGo){
             System.out.println("Opponent Scores 1 point for a go.");
+            this.cribGame.increaseOpponentTotalScore(1);
             f.clearField();
             return false;
-            //GameDisplay.setOpponentTotalScore(1));
         }
         //opponent says go
         else if(oppGo){
@@ -78,8 +88,9 @@ public class Counting{
         return false;
     }
     
-    public static boolean playerTurn(Field f, ArrayList<Card> playerHand, boolean oppSayGo, Scanner s){
+    public boolean playerTurn(Field f, ArrayList<Card> playerHand, boolean oppSayGo){
         //player makes choice
+        Scanner s = new Scanner(System.in);
         System.out.println("Player Turn");
         while(true){
             int handIndex = 0;
@@ -103,6 +114,7 @@ public class Counting{
                 }
                 if(oppSayGo){
                     System.out.println("Player Scores 1 point for a go.");
+                    this.cribGame.increasePlayerTotalScore(1);
                     f.clearField();
                     return false;
                 }
@@ -117,25 +129,24 @@ public class Counting{
                 continue;
             }
             playerHand.remove(playerCard);
-            pointsCheck(f, "You");
-            //GameDisplay.setPlayerTotalScore(pointsCheck(field, "You"));
+            this.cribGame.increasePlayerTotalScore(pointsCheck(f, this.playerName));
             return false;
         }
     }
     
     
-    public static boolean isCardAvailable(ArrayList<Card> hand){
+    public boolean isCardAvailable(ArrayList<Card> hand){
         return hand.size() > 0;
     }
 
-    public static boolean isCountingDone(ArrayList<Card> dealerHand, ArrayList<Card> nonDealerHand){
+    public boolean isCountingDone(ArrayList<Card> dealerHand, ArrayList<Card> nonDealerHand){
         if(isCardAvailable(nonDealerHand) || isCardAvailable(dealerHand)){
             return false;
         }
         return true;
     }
     
-    public static Card opponentCardChoice(Field f, ArrayList<Card> o, boolean playFirst){
+    public Card opponentCardChoice(Field f, ArrayList<Card> o, boolean playFirst){
         //chose a random card if they play first
         Random r = new Random();
         if(playFirst){
@@ -170,7 +181,7 @@ public class Counting{
         return o.get(scoreInd);
     }
     
-    private static int opponentPointCountCheck(Field f){
+    private int opponentPointCountCheck(Field f){
         int points = 0;
         int pair = pairsCounting(f);
         int run = runsCounting(f);
@@ -184,7 +195,7 @@ public class Counting{
         return points;
     }
     
-    public static boolean saysGo(Field f, ArrayList<Card> o){
+    public boolean saysGo(Field f, ArrayList<Card> o){
         for(int i = 0; i < o.size(); i++){
             Card oppChoice = o.get(i);
             f.addCard(oppChoice);
@@ -197,7 +208,7 @@ public class Counting{
         return true;
     }
     
-    public static int pointsCheck(Field field, String player){
+    public int pointsCheck(Field field, String player){
         int score = 0;
         int pairsScore = pairsCounting(field);
         int runsScore = runsCounting(field);
@@ -220,22 +231,8 @@ public class Counting{
         } 
         return score + pairsScore + runsScore;
     }
-    
-    /*
-    public static boolean isGameEnd(){
-        if(GameDisplay.getOpponentTotalScore() > 120){
-            gameEnd = true;
-            return gameEnd;
-        }
-        if(GameDisplay.getPlayerTotalScore() > 120){
-            gameEnd = true;
-            return gameEnd;
-        }
-        return gameEnd;
-    }
-    */
 
-    public static int pairsCounting(Field f){
+    public int pairsCounting(Field f){
         int score = 0;
         int count = 1;
         int fieldSize = f.size() - 1;
@@ -251,7 +248,7 @@ public class Counting{
         return score + count * (count - 1);
     }
     
-    public static int runsCounting(Field f){
+    public int runsCounting(Field f){
         int fieldSize = f.size();
         if(fieldSize < 3) return 0;
         
@@ -277,13 +274,13 @@ public class Counting{
         return 0;
     }
     
-    public static String playerInput(Scanner s, ArrayList<Card> h){
-        System.out.println("Play a card or press 0 for a go." + "\n" + "Player Hand: " + "\n" + Deck.toString(h));
+    public String playerInput(Scanner s, ArrayList<Card> h){
+        System.out.println("Play a card or press 0 for a go." + "\n" + "Player Hand: " + "\n" + CribbageGame.printHand(h));
         String playerSelection = s.next();
         return playerSelection;
     }
     
-    private static int scanRun(ArrayList<Integer> run){
+    private int scanRun(ArrayList<Integer> run){
         int runLength = 1;
         for(int i = 0; i < run.size() - 1; i++){
             if(run.get(i) + 1 == run.get(i + 1)) runLength++;
@@ -292,19 +289,16 @@ public class Counting{
         return runLength;
     }
     
-    public static boolean thirtyOne(Field f){
+    public boolean thirtyOne(Field f){
         return f.getSum() == 31;
     }
     
-    public static boolean fifteen(Field f){
+    public boolean fifteen(Field f){
         return f.getSum() == 15;
     }
     
-    public static boolean overThirtyOne(Field f){
+    public boolean overThirtyOne(Field f){
         return f.getSum() > 31;
     }
     
-    public static boolean getGameEnd(){
-        return gameEnd;
-    }
 }
