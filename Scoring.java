@@ -140,13 +140,10 @@ public class Scoring{
         int currRunCount = 1;
         boolean isDoubleRun = false;
         boolean isTripleRun = false;
-        boolean isQuadRun = false;
+        int pairsN = pairs(a);
         for(int i = 1; i < a.size(); i++){
             if(a.get(i).getValue() == a.get(i - 1).getValue() + 1){
                 currRunCount++;
-            }
-            else if(a.get(i).getValue() == a.get(i - 1).getValue() && (isDoubleRun && isTripleRun)){
-                isQuadRun = true;
             }
             else if(a.get(i).getValue() == a.get(i - 1).getValue() && isDoubleRun){
                 isTripleRun = true;
@@ -156,13 +153,13 @@ public class Scoring{
             }
             else{
                 if (currRunCount >= 3) {
-                    if (isDoubleRun && !isTripleRun && !isQuadRun) {
+                    if (isDoubleRun && !isTripleRun) {
                         runCount += currRunCount * 2;
                     }
-                    else if (isTripleRun && !isQuadRun) {
+                    else if (isTripleRun && pairsN == 6){
                         runCount += currRunCount * 3;
                     }
-                    else if(isQuadRun){
+                    else if(pairsN == 4){
                         runCount += currRunCount * 4;
                     }
                     else {
@@ -175,13 +172,13 @@ public class Scoring{
             }
         }
         if (currRunCount >= 3) {
-            if (isDoubleRun && !isTripleRun && !isQuadRun) {
+            if (isDoubleRun && !isTripleRun) {
                 runCount += currRunCount * 2;
             }
-            else if (isTripleRun && !isQuadRun) {
+            else if (isTripleRun && pairsN == 6) {
                 runCount += currRunCount * 3;
             }
-            else if(isQuadRun){
+            else if(pairsN == 4){
                 runCount += currRunCount * 4;
             }
             else {
