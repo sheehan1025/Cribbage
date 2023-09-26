@@ -176,7 +176,7 @@ public class Counting{
         //chose a random card that can be played if no points possible
         if(maxScore == 0 && validCards.size() > 0){
             int n = r.nextInt(validCards.size());
-            return o.get(n);
+            return validCards.get(n);
         }
         return o.get(scoreInd);
     }
