@@ -36,6 +36,14 @@ public class Scoring{
         }
         return pairScore + fifteenScore + flushScore + runScore + nobScore;
     }
+    
+    public int getHandOnlyScore(){
+        int pairScore = pairs(this.sortedHand);
+        int fifteenScore = fifteens(this.sortedHand);
+        int flushScore = flush(this.sortedHand);
+        int runScore = runs(this.sortedHand);
+        return pairScore + fifteenScore + flushScore + runScore;
+    }
 
     private ArrayList<Card> sortHand(ArrayList<Card> hand){
         ArrayList<Card> retList = new ArrayList<Card>();
@@ -132,23 +140,30 @@ public class Scoring{
         int currRunCount = 1;
         boolean isDoubleRun = false;
         boolean isTripleRun = false;
+        boolean isQuadRun = false;
         for(int i = 1; i < a.size(); i++){
             if(a.get(i).getValue() == a.get(i - 1).getValue() + 1){
                 currRunCount++;
             }
+            else if(a.get(i).getValue() == a.get(i - 1).getValue() && (isDoubleRun && isTripleRun)){
+                isQuadRun = true;
+            }
             else if(a.get(i).getValue() == a.get(i - 1).getValue() && isDoubleRun){
                 isTripleRun = true;
             }
-            else if(a.get(i).getValue() == a.get(i - 1).getValue()){
+            else if(a.get(i).getValue() == a.get(i - 1).getValue() ){
                 isDoubleRun = true;
             }
             else{
                 if (currRunCount >= 3) {
-                    if (isDoubleRun && !isTripleRun) {
+                    if (isDoubleRun && !isTripleRun && !isQuadRun) {
                         runCount += currRunCount * 2;
                     }
-                    else if (isTripleRun) {
+                    else if (isTripleRun && !isQuadRun) {
                         runCount += currRunCount * 3;
+                    }
+                    else if(isQuadRun){
+                        runCount += currRunCount * 4;
                     }
                     else {
                         runCount += currRunCount;
@@ -160,11 +175,14 @@ public class Scoring{
             }
         }
         if (currRunCount >= 3) {
-            if (isDoubleRun && !isTripleRun) {
+            if (isDoubleRun && !isTripleRun && !isQuadRun) {
                 runCount += currRunCount * 2;
             }
-            else if (isTripleRun) {
+            else if (isTripleRun && !isQuadRun) {
                 runCount += currRunCount * 3;
+            }
+            else if(isQuadRun){
+                runCount += currRunCount * 4;
             }
             else {
                 runCount += currRunCount;
