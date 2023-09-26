@@ -69,20 +69,25 @@ public class Counting{
             Card oppChoice = opponentCardChoice(f, opponentHand, oppGoesFirst);
             f.addCard(oppChoice);
             System.out.println("Opponent played " + oppChoice);
+            System.out.println("-------------------------------------------------");
             this.cribGame.increaseOpponentTotalScore(pointsCheck(f, "Opponent"));
+            this.cribGame.showScore();
             opponentHand.remove(oppChoice);
             return false;
         }
         //Opponent gets a go from player but cant play a card
         else if(doesPlayerSayGo && oppGo){
             System.out.println("Opponent Scores 1 point for a go.");
+            System.out.println("-------------------------------------------------");
             this.cribGame.increaseOpponentTotalScore(1);
+            this.cribGame.showScore();
             f.clearField();
             return false;
         }
         //opponent says go
         else if(oppGo){
             System.out.println("Opponent says Go.");
+            System.out.println("-------------------------------------------------");
             return true;
         }
         return false;
@@ -114,7 +119,9 @@ public class Counting{
                 }
                 if(oppSayGo){
                     System.out.println("Player Scores 1 point for a go.");
+                    System.out.println("-------------------------------------------------");
                     this.cribGame.increasePlayerTotalScore(1);
+                    this.cribGame.showScore();
                     f.clearField();
                     return false;
                 }
@@ -129,7 +136,9 @@ public class Counting{
                 continue;
             }
             playerHand.remove(playerCard);
+            System.out.println("-------------------------------------------------");
             this.cribGame.increasePlayerTotalScore(pointsCheck(f, this.playerName));
+            this.cribGame.showScore();
             return false;
         }
     }
