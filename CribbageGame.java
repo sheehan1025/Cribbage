@@ -35,10 +35,10 @@ public class CribbageGame{
             cribPlacement(getPlayerHand(), getOpponentHand(), isPlayerDealer);
             
             //reveal top card after crib placements
-            Card topCard = deck.getTopCard();
-            System.out.println("====================================");
+            Card topCard = new Card("Spade", 3);//deck.getTopCard();
+            System.out.println("===============================================");
             System.out.print("Top card: " + topCard.toString() + "\n");
-            System.out.println("====================================");
+            System.out.println("===============================================");
             
             //dealer scores nibs points
             int nibsScore = nibsScoring.nibs(topCard);
@@ -50,8 +50,8 @@ public class CribbageGame{
             if(statusCheck()) break;
             
             //counting round
-            startCountingRound(getPlayerHand(), getOpponentHand(), isPlayerDealer);
-            if(statusCheck()) break;
+            //startCountingRound(getPlayerHand(), getOpponentHand(), isPlayerDealer);
+            //if(statusCheck()) break;
             
             //Scoring round
             System.out.println("Now scoring hand and crib points." + "\n");
@@ -61,8 +61,6 @@ public class CribbageGame{
             if(statusCheck()) break;
             
             resetRound(); //ToDo fix reset round to move cards from hands back to deck and shuffle
-            System.out.println("Starting new round.");
-            System.out.println("===============================================");
             
             //switch roles
             if(isPlayerDealer) isPlayerDealer = false;
@@ -86,17 +84,19 @@ public class CribbageGame{
             System.out.println(printHand(oHand));
             if(statusCheck()) return;
             
-            System.out.println("Scoring Player's hand:");
+            System.out.println("Scoring " +  this.playerName + "'s hand:");
             increasePlayerTotalScore(handScore(pHand, top, playerName));
+            System.out.println(printHand(pHand));
             if(statusCheck()) return;
             
-            System.out.println("Scoring Player's crib:");
+            System.out.println("Scoring " +  this.playerName + "'s crib:");
             increasePlayerTotalScore(handScore(cHand, top, playerName));
             System.out.println(printHand(cHand));
         }
         else{
-            System.out.println("Scoring Player's hand:");
+            System.out.println("Scoring " +  this.playerName + "'s hand:");
             increasePlayerTotalScore(handScore(pHand, top, playerName));
+            System.out.println(printHand(pHand));
             if(statusCheck()) return;
             
             System.out.println("Scoring Opponent's hand:");
@@ -155,12 +155,31 @@ public class CribbageGame{
     }
     
     public ArrayList<Card> opponentCribChoice(ArrayList<Card> hand){
-        ArrayList<Card> cribCards = new ArrayList<Card>();
         //place holder for opponent crib choice
-        cribCards.add(hand.get(0));
-        hand.remove(cribCards.get(0));
-        cribCards.add(hand.get(0));
-        hand.remove(cribCards.get(0));
+        int maxScore = 0;
+        ArrayList<Card> keepCards = new ArrayList<Card>();
+        for(int i = 0; i < (1 << hand.size()); i++){
+            ArrayList<Card> subSet = new ArrayList<Card>();
+            int subScore = 0;
+            for (int j = 0; j < hand.size(); j++) {
+                if ((i & (1 << j)) > 0) {
+                    subSet.add(hand.get(j));
+                }
+            }
+            Scoring s = new Scoring(subSet, "Opponent");
+            subScore = s.getHandOnlyScore();
+            if (subSet.size() == 4 && subScore > maxScore) {
+                maxScore = subScore;
+                keepCards = subSet;
+            }
+        }
+        ArrayList<Card> cribCards = new ArrayList<Card>();
+        for(Card c : hand){
+            if(!keepCards.contains(c)){
+                cribCards.add(c);
+            }
+        }
+        for(Card c : cribCards) hand.remove(c);
         return cribCards;
     }
     
@@ -185,9 +204,16 @@ public class CribbageGame{
     
     
     public void startRound(Deck d){
-        System.out.println("Player overall score: " + playerTotalScore);
-        System.out.println("Opponent overall score: " + opponentTotalScore + "\n");
-        playerHand = d.getHand();
+        System.out.println("Starting new round.");
+        System.out.println("===============================================");
+        showScore();
+        //playerHand = d.getHand();
+        playerHand.add(new Card("Heart", 1));
+        playerHand.add(new Card("Heart", 2));
+        playerHand.add(new Card("Diamond", 1));
+        playerHand.add(new Card("Diamond", 2));
+        playerHand.add(new Card("Heart", 10));
+        playerHand.add(new Card("Heart", 11));
         opponentHand = d.getHand();
     }
 	
@@ -200,7 +226,26 @@ public class CribbageGame{
 
     public void gameEnd(){
         if(playerWin()){
-            //check for skunk, double skunk, victory message
+            if(getPlayerTotalScore() > getOpponentTotalScore() + 60){
+                System.out.println("You double skunked your opponent!");
+            }
+            else if(getPlayerTotalScore() > getOpponentTotalScore() + 30){
+                System.out.println("You skunked your opponent!");
+            }
+            else{
+                System.out.println("You won!");
+            }
+        }
+        else{
+            if(getOpponentTotalScore() > getPlayerTotalScore() + 60){
+                System.out.println("You got double skunked!");
+            }
+            else if(getOpponentTotalScore() > getPlayerTotalScore() + 30){
+                System.out.println("You got skunked!");
+            }
+            else{
+                System.out.println("You lost!");
+            }
         }
     }
 
@@ -259,5 +304,10 @@ public class CribbageGame{
             hand += (i + 1) + ". " + a.get(i) + "\n";
         }
         return hand;
+    }
+    
+    public void showScore(){
+        System.out.println(playerName + " overall score: " + getPlayerTotalScore());
+        System.out.println("Opponent overall score: " + getOpponentTotalScore() + "\n");
     }
 }
