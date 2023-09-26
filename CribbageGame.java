@@ -36,9 +36,9 @@ public class CribbageGame{
             
             //reveal top card after crib placements
             Card topCard = deck.getTopCard();
-            System.out.println("====================================");
+            System.out.println("===============================================");
             System.out.print("Top card: " + topCard.toString() + "\n");
-            System.out.println("====================================");
+            System.out.println("===============================================");
             
             //dealer scores nibs points
             int nibsScore = nibsScoring.nibs(topCard);
@@ -61,8 +61,6 @@ public class CribbageGame{
             if(statusCheck()) break;
             
             resetRound(); //ToDo fix reset round to move cards from hands back to deck and shuffle
-            System.out.println("Starting new round.");
-            System.out.println("===============================================");
             
             //switch roles
             if(isPlayerDealer) isPlayerDealer = false;
@@ -88,6 +86,7 @@ public class CribbageGame{
             
             System.out.println("Scoring Player's hand:");
             increasePlayerTotalScore(handScore(pHand, top, playerName));
+            System.out.println(printHand(pHand));
             if(statusCheck()) return;
             
             System.out.println("Scoring Player's crib:");
@@ -97,6 +96,7 @@ public class CribbageGame{
         else{
             System.out.println("Scoring Player's hand:");
             increasePlayerTotalScore(handScore(pHand, top, playerName));
+            System.out.println(printHand(pHand));
             if(statusCheck()) return;
             
             System.out.println("Scoring Opponent's hand:");
@@ -160,7 +160,7 @@ public class CribbageGame{
         cribCards.add(hand.get(0));
         hand.remove(cribCards.get(0));
         cribCards.add(hand.get(0));
-        hand.remove(cribCards.get(0));
+        hand.remove(cribCards.get(1));
         return cribCards;
     }
     
@@ -185,10 +185,12 @@ public class CribbageGame{
     
     
     public void startRound(Deck d){
-        System.out.println("Player overall score: " + playerTotalScore);
-        System.out.println("Opponent overall score: " + opponentTotalScore + "\n");
+        System.out.println("Starting new round.");
+        System.out.println("===============================================");
+        showScore();
         playerHand = d.getHand();
         opponentHand = d.getHand();
+        System.out.println(opponentHand);
     }
 	
 	public void resetRound(){
@@ -259,5 +261,10 @@ public class CribbageGame{
             hand += (i + 1) + ". " + a.get(i) + "\n";
         }
         return hand;
+    }
+    
+    public void showScore(){
+        System.out.println(playerName + " overall score: " + getPlayerTotalScore());
+        System.out.println("Opponent overall score: " + getOpponentTotalScore() + "\n");
     }
 }
