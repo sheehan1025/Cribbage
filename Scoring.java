@@ -190,7 +190,7 @@ public class Scoring{
     public int nobs(ArrayList<Card> a, Card c){
         String topSuit = c.getSuit();
         for(Card x : a){
-            if(x.getValue() == 11 && x.getSuit() == topSuit){
+            if(x.getValue() == 11 && x.getSuit() == topSuit && x != c){
                 return 1;
             }
         }
